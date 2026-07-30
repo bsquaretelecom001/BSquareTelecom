@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="card shadow">
+
+                <div class="card-body text-center">
+
+                    <div class="display-1 text-success">
+                        ✓
+                    </div>
+
+                    <h2 class="text-success fw-bold mt-3">
+                        Payment Successful
+                    </h2>
+
+                    <p class="text-muted mb-4">
+                        Your internet plan has been activated successfully.
+                    </p>
+
+                    <hr>
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Reference</th>
+                            <td>{{ order.reference }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Plan</th>
+                            <td>{{ order.plan.name }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Data</th>
+                            <td>{{ order.plan.data }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Validity</th>
+                            <td>{{ order.plan.validity }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Amount</th>
+                            <td>₦{{ order.amount }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-success">
+                                    Paid
+                                </span>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                    <div class="mt-4">
+
+                        <a href="{% url 'dashboard' %}"
+                           class="btn btn-primary">
+
+                            Go to Dashboard
+
+                        </a>
+
+                        <a href="{% url 'receipt' order.id %}"
+                           class="btn btn-success">
+
+                            Download Receipt
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

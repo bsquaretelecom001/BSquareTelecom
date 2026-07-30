@@ -1,0 +1,237 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h2 class="fw-bold">
+        Welcome, {{ request.user.first_name|default:request.user.username }}
+      </h2>
+
+      <p class="text-muted">Manage your internet subscription and account.</p>
+    </div>
+
+    <div class="col-lg-4 text-lg-end">
+      <a href="{% url 'plans' %}" class="btn btn-primary"> Buy New Plan </a>
+    </div>
+  </div>
+
+  <!-- Top Cards -->
+
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card shadow border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Active Plan</h6>
+
+          {% if customer.active_plan %}
+
+          <h3 class="text-success">Active</h3>
+
+          {% else %}
+
+          <h3 class="text-danger">Inactive</h3>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Days Remaining</h6>
+
+          <h3>{{ days_remaining|default:"0" }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Paid Orders</h6>
+
+          <h3>{{ paid_orders }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow border-0">
+        <div class="card-body">
+          <h6 class="text-muted">Connected Devices</h6>
+
+          <h3 class="text-primary">{{ connected_devices }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Telegram -->
+
+  <div class="card shadow border-0 mt-4">
+    <div class="card-body">
+      <h4>🤖 Telegram Bot</h4>
+
+      <p class="text-muted">
+        Link your Telegram account with your website account.
+      </p>
+
+      <a href="{% url 'telegram_link' %}" class="btn btn-success">
+        Generate Telegram Link Code
+      </a>
+
+      {% if customer.telegram_code %}
+
+      <div class="alert alert-info mt-3">
+        <strong>Your Link Code</strong>
+
+        <br /><br />
+
+        <code style="font-size: 16px"> {{ customer.telegram_code }} </code>
+
+        <hr />
+
+        Send this to the bot:
+
+        <br /><br />
+
+        <strong> /link {{ customer.telegram_code }} </strong>
+      </div>
+
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Devices -->
+
+  <div class="card shadow border-0 mt-5">
+    <div class="card-body">
+      <h4 class="mb-4">📱 My Devices</h4>
+
+      {% if devices %}
+
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>MAC Address</th>
+            <th>IP Address</th>
+            <th>Status</th>
+            <th>Data Used</th>
+            <th>Last Seen</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for device in devices %}
+
+          <tr>
+            <td>{{ device.device_name }}</td>
+
+            <td>{{ device.mac_address }}</td>
+
+            <td>{{ device.ip_address }}</td>
+
+            <td>
+              {% if device.connected %}
+
+              <span class="badge bg-success"> Online </span>
+
+              {% else %}
+
+              <span class="badge bg-secondary"> Offline </span>
+
+              {% endif %}
+            </td>
+
+            <td>{{ device.data_used }}</td>
+
+            <td>{{ device.last_seen|date:"d M Y H:i" }}</td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+
+      <div class="alert alert-warning">No device has connected yet.</div>
+
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Orders -->
+
+  <div class="card shadow border-0 mt-5">
+    <div class="card-body">
+      <h4 class="mb-4">Recent Orders</h4>
+
+      {% if orders %}
+
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for order in orders %}
+
+          <tr>
+            <td>{{ order.plan.name }}</td>
+
+            <td>₦{{ order.amount }}</td>
+
+            <td>
+              {% if order.status == "Paid" %}
+
+              <span class="badge bg-success"> Paid </span>
+
+              {% elif order.status == "Pending" %}
+
+              <span class="badge bg-warning text-dark"> Pending </span>
+
+              {% else %}
+
+              <span class="badge bg-danger"> Cancelled </span>
+
+              {% endif %}
+            </td>
+
+            <td>{{ order.created_at|date:"d M Y" }}</td>
+
+            <td>
+              {% if order.status == "Paid" %}
+
+              <a
+                href="{% url 'receipt' order.id %}"
+                class="btn btn-sm btn-outline-primary"
+              >
+                Receipt
+              </a>
+
+              {% else %} — {% endif %}
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+
+      <div class="alert alert-info">No orders yet.</div>
+
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

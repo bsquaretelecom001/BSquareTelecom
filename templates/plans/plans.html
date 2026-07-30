@@ -1,0 +1,133 @@
+{% extends "base.html" %} {% block content %}
+
+<section class="hero">
+  <div class="container text-center">
+    <h1>Choose Your Internet Plan</h1>
+    <p>Affordable internet packages for students, homes and businesses.</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <!-- Daily -->
+  <h2 class="fw-bold mb-4">Daily Plans</h2>
+
+  <div class="row">
+    {% for plan in daily %}
+
+    <div class="col-lg-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <span class="badge bg-primary mb-3"> Daily </span>
+
+          <h3>{{ plan.name }}</h3>
+
+          <h1 class="text-primary fw-bold">₦{{ plan.price }}</h1>
+
+          <p>{{ plan.data }}</p>
+
+          <p class="text-muted">{{ plan.validity }}</p>
+
+          <hr />
+
+          <p>✔ Fast Internet</p>
+          <p>✔ Secure Connection</p>
+          <p>✔ 24/7 Support</p>
+
+          <a href="{% url 'buy_plan' plan.id %}" class="btn btn-primary w-100">
+            Buy Now
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <p>No Daily Plans Available.</p>
+
+    {% endfor %}
+  </div>
+
+  <hr class="my-5" />
+
+  <!-- Weekly -->
+  <h2 class="fw-bold mb-4">Weekly Plans</h2>
+
+  <div class="row">
+    {% for plan in weekly %}
+
+    <div class="col-lg-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <span class="badge bg-success mb-3"> Weekly </span>
+
+          <h3>{{ plan.name }}</h3>
+
+          <h1 class="text-success fw-bold">₦{{ plan.price }}</h1>
+
+          <p>{{ plan.data }}</p>
+
+          <p class="text-muted">{{ plan.validity }}</p>
+
+          <hr />
+
+          <p>✔ Fast Internet</p>
+          <p>✔ Secure Connection</p>
+          <p>✔ 24/7 Support</p>
+
+          <a href="{% url 'buy_plan' plan.id %}" class="btn btn-success w-100">
+            Buy Now
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <p>No Weekly Plans Available.</p>
+
+    {% endfor %}
+  </div>
+
+  <hr class="my-5" />
+
+  <!-- Monthly -->
+  <h2 class="fw-bold mb-4">Monthly Plans</h2>
+
+  <div class="row">
+    {% for plan in monthly %}
+
+    <div class="col-lg-4 mb-4">
+      <div class="card border-primary h-100">
+        <div class="card-body text-center">
+          <span class="badge bg-danger mb-3"> Most Popular </span>
+
+          <h3>{{ plan.name }}</h3>
+
+          <h1 class="text-primary fw-bold">₦{{ plan.price }}</h1>
+
+          <p>{{ plan.data }}</p>
+
+          <p class="text-muted">{{ plan.validity }}</p>
+
+          <hr />
+
+          <p>✔ Unlimited Streaming</p>
+          <p>✔ Low Latency Gaming</p>
+          <p>✔ Priority Support</p>
+
+          <a href="{% url 'buy_plan' plan.id %}" class="btn btn-primary w-100">
+            Buy Now
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <p>No Monthly Plans Available.</p>
+
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

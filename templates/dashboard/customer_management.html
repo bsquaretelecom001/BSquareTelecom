@@ -1,0 +1,86 @@
+{% extends "dashboard/admin_base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Customer Management</h2>
+    <form method="GET" class="mb-4">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by name, email, phone, state or city..."
+          name="q"
+          value="{{ query }}"
+        />
+
+        <button class="btn btn-primary">Search</button>
+      </div>
+    </form>
+
+    <span class="badge bg-primary fs-6">
+      Total Customers: {{ customers.count }}
+    </span>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-body">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>State</th>
+            <th>City</th>
+            <th>Plan</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for customer in customers %}
+
+          <tr>
+            <td>
+              {{ customer.user.first_name }} {{ customer.user.last_name }}
+            </td>
+
+            <td>{{ customer.user.email }}</td>
+
+            <td>{{ customer.phone }}</td>
+
+            <td>{{ customer.state }}</td>
+
+            <td>{{ customer.city }}</td>
+
+            <td>
+              {% if customer.active_plan %} Active {% else %} None {% endif %}
+            </td>
+
+            <td>
+              {% if customer.active_plan %}
+
+              <span class="badge bg-success"> Connected </span>
+
+              {% else %}
+
+              <span class="badge bg-danger"> Inactive </span>
+
+              {% endif %}
+            </td>
+          </tr>
+
+          {% empty %}
+
+          <tr>
+            <td colspan="7" class="text-center">No customers found.</td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

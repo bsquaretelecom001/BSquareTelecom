@@ -1,0 +1,81 @@
+{% extends "dashboard/admin_base.html" %} {% block content %}
+
+<h2 class="mb-4">Business Reports</h2>
+
+<div class="row">
+  <div class="col-md-3 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5>Total Revenue</h5>
+
+        <h2 class="text-success">₦{{ total_revenue }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5>Paid Orders</h5>
+
+        <h2>{{ total_paid }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5>Pending Orders</h5>
+
+        <h2 class="text-warning">{{ pending_orders }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-4">
+    <div class="card shadow text-center">
+      <div class="card-body">
+        <h5>Customers</h5>
+
+        <h2 class="text-primary">{{ customers }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow">
+  <div class="card-header bg-dark text-white">
+    <h5 class="mb-0">Business Summary</h5>
+  </div>
+
+  <div class="card-body">
+    <table class="table table-bordered">
+      <tr>
+        <th>Total Revenue</th>
+
+        <td>₦{{ total_revenue }}</td>
+      </tr>
+
+      <tr>
+        <th>Successful Payments</th>
+
+        <td>{{ total_paid }}</td>
+      </tr>
+
+      <tr>
+        <th>Pending Payments</th>
+
+        <td>{{ pending_orders }}</td>
+      </tr>
+
+      <tr>
+        <th>Total Customers</th>
+
+        <td>{{ customers }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

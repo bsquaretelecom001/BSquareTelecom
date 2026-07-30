@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1>Coverage Areas</h1>
+    <p class="lead">B Square Telecom is expanding across Nigeria.</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-body">
+          <h4>🟢 Available</h4>
+          <ul>
+            <li>University Hostels</li>
+            <li>Student Lodges</li>
+            <li>Private Apartments</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-body">
+          <h4>🟡 Coming Soon</h4>
+          <ul>
+            <li>Neighbouring Communities</li>
+            <li>Business Centres</li>
+            <li>Hotels</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-body">
+          <h4>📞 Need Coverage?</h4>
+
+          <p>Contact us if your lodge or area is not yet covered.</p>
+
+          <a href="/contact/" class="btn btn-primary"> Contact Us </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

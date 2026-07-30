@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <h1 class="text-center mb-4">B Square Telecom Internet Plans</h1>
+
+  <div class="row">
+    {% for plan in plans %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card shadow">
+        <div class="card-body text-center">
+          <h3>{{ plan.name }}</h3>
+
+          <h4>{{ plan.data }}</h4>
+
+          <p>Validity: {{ plan.validity }}</p>
+
+          <h3>₦{{ plan.price }}</h3>
+
+          <p>{{ plan.description }}</p>
+
+          <a href="{% url 'buy_plan' plan.id %}" class="btn btn-primary">
+            Buy Plan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <p class="text-center">No plans available at the moment.</p>
+
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

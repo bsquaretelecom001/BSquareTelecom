@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="card shadow">
+    <div class="card-body">
+      <h2>{{ plan.name }}</h2>
+
+      <hr />
+
+      <p><strong>Data:</strong> {{ plan.data }}</p>
+
+      <p><strong>Validity:</strong> {{ plan.validity }}</p>
+
+      <p><strong>Price:</strong> ₦{{ plan.price }}</p>
+
+      <p>{{ plan.description }}</p>
+
+      <button class="btn btn-success btn-lg">Proceed to Payment</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

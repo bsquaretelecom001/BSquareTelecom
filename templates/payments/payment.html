@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="card shadow">
+    <div class="card-body">
+      <h2>Order Summary</h2>
+
+      <hr />
+
+      <p><strong>Plan:</strong> {{ order.plan.name }}</p>
+
+      <p><strong>Data:</strong> {{ order.plan.data }}</p>
+
+      <p><strong>Validity:</strong> {{ order.plan.validity }}</p>
+
+      <p><strong>Amount:</strong> ₦{{ order.amount }}</p>
+
+      <p><strong>Reference:</strong> {{ order.reference }}</p>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-success btn-lg w-100">
+          Pay Now
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

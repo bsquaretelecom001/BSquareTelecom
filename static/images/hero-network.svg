@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="800"
+     height="600"
+     viewBox="0 0 800 600">
+
+    <defs>
+
+        <linearGradient id="bg"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%">
+
+            <stop offset="0%" stop-color="#0066ff"/>
+            <stop offset="100%" stop-color="#00b8ff"/>
+
+        </linearGradient>
+
+    </defs>
+
+    <rect
+        width="800"
+        height="600"
+        rx="35"
+        fill="url(#bg)"
+    />
+
+    <circle
+        cx="400"
+        cy="250"
+        r="70"
+        fill="white"
+    />
+
+    <path
+        d="M320 210
+           Q400 130
+           480 210"
+        stroke="white"
+        stroke-width="12"
+        fill="none"
+        stroke-linecap="round"
+    />
+
+    <path
+        d="M345 240
+           Q400 185
+           455 240"
+        stroke="white"
+        stroke-width="10"
+        fill="none"
+        stroke-linecap="round"
+    />
+
+    <path
+        d="M375 270
+           Q400 245
+           425 270"
+        stroke="white"
+        stroke-width="8"
+        fill="none"
+        stroke-linecap="round"
+    />
+
+    <circle
+        cx="400"
+        cy="300"
+        r="10"
+        fill="#0066ff"
+    />
+
+    <text
+        x="400"
+        y="420"
+        font-size="42"
+        font-family="Poppins, Arial"
+        font-weight="700"
+        fill="white"
+        text-anchor="middle">
+
+        B Square Telecom
+
+    </text>
+
+    <text
+        x="400"
+        y="470"
+        font-size="24"
+        font-family="Arial"
+        fill="white"
+        text-anchor="middle">
+
+        Connecting You Without Limits
+
+    </text>
+
+</svg>

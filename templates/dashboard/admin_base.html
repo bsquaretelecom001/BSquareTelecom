@@ -1,0 +1,101 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>B Square Telecom Admin</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body class="bg-light">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+
+        <div class="col-md-2 bg-dark text-white min-vh-100 p-3">
+          <h3 class="text-center mb-4">B Square Telecom</h3>
+
+          <hr />
+
+          <a
+            href="{% url 'admin_dashboard' %}"
+            class="btn btn-dark w-100 text-start mb-2"
+          >
+            🏠 Dashboard
+          </a>
+
+          <a
+            href="{% url 'customer_management' %}"
+            class="btn btn-dark w-100 text-start mb-2"
+          >
+            👥 Customers
+          </a>
+
+          <a
+            href="{% url 'order_management' %}"
+            class="btn btn-dark w-100 text-start mb-2"
+          >
+            📦 Orders
+          </a>
+
+          <a
+            href="{% url 'plan_management' %}"
+            class="btn btn-dark w-100 text-start mb-2"
+          >
+            🌐 Internet Plans
+          </a>
+
+          <a
+            href="{% url 'reports' %}"
+            class="btn btn-dark w-100 text-start mb-2"
+          >
+            📊 Reports
+          </a>
+
+          <hr />
+
+          <a href="{% url 'home' %}" class="btn btn-outline-light w-100 mb-2">
+            🌍 Visit Website
+          </a>
+
+          <a href="/admin/" class="btn btn-outline-warning w-100 mb-2">
+            ⚙ Django Admin
+          </a>
+
+          <a href="{% url 'logout' %}" class="btn btn-danger w-100">
+            🚪 Logout
+          </a>
+        </div>
+
+        <!-- Main Content -->
+
+        <div class="col-md-10 p-4">
+          {% if messages %} {% for message in messages %}
+
+          <div class="alert alert-success alert-dismissible fade show">
+            {{ message }}
+
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+
+          {% endfor %} {% endif %} {% block content %} {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

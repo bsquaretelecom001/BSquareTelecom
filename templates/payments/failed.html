@@ -1,0 +1,13 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="alert alert-danger text-center">
+    <h2>❌ Payment Failed</h2>
+
+    <p>Your payment could not be verified.</p>
+
+    <a href="/plans/" class="btn btn-primary mt-3"> Try Again </a>
+  </div>
+</div>
+
+{% endblock %}

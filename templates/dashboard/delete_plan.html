@@ -1,0 +1,35 @@
+{% extends "dashboard/admin_base.html" %} {% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow border-0">
+        <div class="card-header bg-danger text-white">
+          <h3>Delete Plan</h3>
+        </div>
+
+        <div class="card-body text-center">
+          <h4>{{ plan.name }}</h4>
+
+          <p class="mt-4">
+            Are you sure you want to delete this internet plan?
+          </p>
+
+          <p class="text-danger">This action cannot be undone.</p>
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <a href="{% url 'plan_management' %}" class="btn btn-secondary">
+              Cancel
+            </a>
+
+            <button class="btn btn-danger">Delete Plan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
