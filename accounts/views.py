@@ -52,13 +52,12 @@ def register(request):
 
 
 def login_view(request):
-    # TEMPORARY: Create admin account on Render if it doesn't exist
-    if not User.objects.filter(username="bigt").exists():
-        User.objects.create_superuser(
-            username="bigt",
-            email="bsquaretelecom@gmail.com",
-            password="Admin12345"
-        )
+
+    from django.contrib.auth.models import User
+
+    print("========== USERS ==========")
+    for u in User.objects.all():
+        print(u.username, u.is_superuser, u.is_staff)
 
     if request.method == "POST":
 
@@ -71,20 +70,15 @@ def login_view(request):
             password=password,
         )
 
+        print("LOGIN RESULT:", user)
+
         if user:
             login(request, user)
             return redirect("dashboard")
 
-        messages.error(
-            request,
-            "Invalid username or password."
-        )
+        messages.error(request, "Invalid username or password.")
 
-    return render(
-        request,
-        "accounts/login.html"
-    )
-
+    return render(request, "accounts/login.html")
 
 def logout_view(request):
     logout(request)
