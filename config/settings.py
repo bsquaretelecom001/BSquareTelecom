@@ -184,3 +184,5 @@ LOGIN_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/"
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+AUTO_CREATE_SUPERUSER = os.getenv("AUTO_CREATE_SUPERUSER", "False") == "True"
+CREATE_ADMIN = os.getenv("CREATE_ADMIN", "False") == "True"
