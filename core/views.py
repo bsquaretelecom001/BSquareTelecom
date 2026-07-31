@@ -3,6 +3,8 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.conf import settings
 
+from .models import ContactInfo
+
 
 def home(request):
     return render(request, "home.html")
@@ -13,6 +15,8 @@ def coverage(request):
 
 
 def contact(request):
+
+    contact_info = ContactInfo.objects.first()
 
     if request.method == "POST":
 
@@ -46,4 +50,7 @@ Message:
     return render(
         request,
         "contact.html",
+        {
+            "contact_info": contact_info,
+        },
     )

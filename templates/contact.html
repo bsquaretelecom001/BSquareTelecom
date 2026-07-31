@@ -1,82 +1,126 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 
 <div class="container py-5">
-  <div class="text-center mb-5">
-    <h1 class="fw-bold">Contact B Square Telecom</h1>
 
-    <p class="text-muted">We'd love to hear from you.</p>
-  </div>
-
-  {% if messages %} {% for message in messages %}
-
-  <div class="alert alert-success">{{ message }}</div>
-
-  {% endfor %} {% endif %}
-
-  <div class="row g-4">
-    <div class="col-lg-5">
-      <div class="card shadow border-0 h-100">
-        <div class="card-body p-4">
-          <h4 class="mb-4">Contact Information</h4>
-
-          <p>
-            📞 <strong>Phone</strong><br />
-
-            08032556433
-          </p>
-
-          <p>
-            📧 <strong>Email</strong><br />
-
-            info@bsquaretelecom.com
-          </p>
-
-          <p>
-            📍 <strong>Location</strong><br />
-
-            Nigeria
-          </p>
-        </div>
-      </div>
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Contact {{ contact_info.company_name }}</h1>
+        <p class="text-muted">We'd love to hear from you.</p>
     </div>
 
-    <div class="col-lg-7">
-      <div class="card shadow border-0">
-        <div class="card-body p-4">
-          <h4 class="mb-4">Send Us a Message</h4>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-          <form method="POST">
-            {% csrf_token %}
+    <div class="row g-4">
 
-            <div class="mb-3">
-              <label>Name</label>
+        <div class="col-lg-5">
 
-              <input type="text" name="name" class="form-control" required />
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-body p-4">
+
+                    <h4 class="mb-4">Contact Information</h4>
+
+                    <p>
+                        📞 <strong>Phone</strong><br>
+                        {{ contact_info.phone }}
+                    </p>
+
+                    <p>
+                        💬 <strong>WhatsApp</strong><br>
+                        {{ contact_info.whatsapp }}
+                    </p>
+
+                    <p>
+                        📧 <strong>Email</strong><br>
+                        {{ contact_info.email }}
+                    </p>
+
+                    <p>
+                        📍 <strong>Address</strong><br>
+                        {{ contact_info.address }}
+                    </p>
+
+                    {% if contact_info.facebook %}
+                    <p>
+                        👍 <strong>Facebook</strong><br>
+                        <a href="{{ contact_info.facebook }}" target="_blank">
+                            {{ contact_info.facebook }}
+                        </a>
+                    </p>
+                    {% endif %}
+
+                    {% if contact_info.instagram %}
+                    <p>
+                        📷 <strong>Instagram</strong><br>
+                        <a href="{{ contact_info.instagram }}" target="_blank">
+                            {{ contact_info.instagram }}
+                        </a>
+                    </p>
+                    {% endif %}
+
+                    {% if contact_info.telegram %}
+                    <p>
+                        ✈️ <strong>Telegram</strong><br>
+                        <a href="{{ contact_info.telegram }}" target="_blank">
+                            {{ contact_info.telegram }}
+                        </a>
+                    </p>
+                    {% endif %}
+
+                </div>
+
             </div>
 
-            <div class="mb-3">
-              <label>Email</label>
-
-              <input type="email" name="email" class="form-control" required />
-            </div>
-
-            <div class="mb-3">
-              <label>Message</label>
-
-              <textarea
-                name="message"
-                rows="5"
-                class="form-control"
-                required
-              ></textarea>
-            </div>
-
-            <button class="btn btn-primary">Send Message</button>
-          </form>
         </div>
-      </div>
+
+        <div class="col-lg-7">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body p-4">
+
+                    <h4 class="mb-4">Send Us a Message</h4>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label>Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Message</label>
+                            <textarea name="message" rows="5" class="form-control" required></textarea>
+                        </div>
+
+                        <button class="btn btn-primary">
+                            Send Message
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-  </div>
+
 </div>
 
 {% endblock %}
