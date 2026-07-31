@@ -52,6 +52,14 @@ def register(request):
 
 
 def login_view(request):
+    # TEMPORARY: Create admin account on Render if it doesn't exist
+    if not User.objects.filter(username="bigt").exists():
+        User.objects.create_superuser(
+            username="bigt",
+            email="bsquaretelecom@gmail.com",
+            password="Admin12345"
+        )
+
     if request.method == "POST":
 
         username = request.POST["username"]
