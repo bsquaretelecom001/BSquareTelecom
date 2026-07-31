@@ -56,8 +56,14 @@ def login_view(request):
     from django.contrib.auth.models import User
 
     print("========== USERS ==========")
+    print("TOTAL USERS:", User.objects.count())
+
     for u in User.objects.all():
-        print(u.username, u.is_superuser, u.is_staff)
+        print(
+            f"Username={u.username}, "
+            f"Superuser={u.is_superuser}, "
+            f"Staff={u.is_staff}"
+        )
 
     if request.method == "POST":
 
