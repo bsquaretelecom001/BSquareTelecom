@@ -30,5 +30,21 @@ class InternetPlan(models.Model):
 
     active = models.BooleanField(default=True)
 
+    # NEW FEATURES
+    popular = models.BooleanField(
+        default=False,
+        help_text="Show 'Most Popular' badge on this plan."
+    )
+
+    display_order = models.PositiveIntegerField(
+        default=0,
+        help_text="Lower numbers appear first."
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["display_order", "price"]
+
     def __str__(self):
         return f"{self.name} ({self.plan_type})"
