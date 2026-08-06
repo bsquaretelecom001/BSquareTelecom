@@ -37,4 +37,10 @@ urlpatterns = [
         views.generate_telegram_code,
         name="telegram_link",
     ),
+
+    path(
+    "my-vouchers/",
+    views.my_vouchers,
+    name="my_vouchers",
+),
 ]

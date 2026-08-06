@@ -1,94 +1,61 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <div class="container py-5">
+  <div class="card shadow border-0">
+    <div class="card-body text-center">
+      <h1 class="text-success">✅ Payment Successful</h1>
 
-    <div class="row justify-content-center">
+      <p class="lead">Your internet plan has been activated.</p>
 
-        <div class="col-lg-7">
+      <hr />
 
-            <div class="card shadow">
+      <h4>{{ order.plan.name }}</h4>
 
-                <div class="card-body text-center">
+      <p>{{ order.plan.data }}</p>
 
-                    <div class="display-1 text-success">
-                        ✓
-                    </div>
+      <h2 class="text-primary mt-4">Voucher Code</h2>
 
-                    <h2 class="text-success fw-bold mt-3">
-                        Payment Successful
-                    </h2>
+      <div class="alert alert-success">
+        <h1 id="voucher">{{ voucher.voucher_code }}</h1>
+      </div>
 
-                    <p class="text-muted mb-4">
-                        Your internet plan has been activated successfully.
-                    </p>
+      <button class="btn btn-primary" onclick="copyVoucher()">
+        Copy Voucher
+      </button>
 
-                    <hr>
+      <br /><br />
 
-                    <table class="table">
+      <strong> Valid Until </strong>
 
-                        <tr>
-                            <th>Reference</th>
-                            <td>{{ order.reference }}</td>
-                        </tr>
+      <br />
 
-                        <tr>
-                            <th>Plan</th>
-                            <td>{{ order.plan.name }}</td>
-                        </tr>
+      {{ voucher.expires_at }}
 
-                        <tr>
-                            <th>Data</th>
-                            <td>{{ order.plan.data }}</td>
-                        </tr>
+      <br /><br />
 
-                        <tr>
-                            <th>Validity</th>
-                            <td>{{ order.plan.validity }}</td>
-                        </tr>
+      <strong> Device Limit </strong>
 
-                        <tr>
-                            <th>Amount</th>
-                            <td>₦{{ order.amount }}</td>
-                        </tr>
+      <br />
 
-                        <tr>
-                            <th>Status</th>
-                            <td>
-                                <span class="badge bg-success">
-                                    Paid
-                                </span>
-                            </td>
-                        </tr>
+      {{ voucher.device_limit }} Devices
 
-                    </table>
+      <br /><br />
 
-                    <div class="mt-4">
-
-                        <a href="{% url 'dashboard' %}"
-                           class="btn btn-primary">
-
-                            Go to Dashboard
-
-                        </a>
-
-                        <a href="{% url 'receipt' order.id %}"
-                           class="btn btn-success">
-
-                            Download Receipt
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
+      <a href="{% url 'dashboard' %}" class="btn btn-success">
+        Go To Dashboard
+      </a>
     </div>
-
+  </div>
 </div>
+
+<script>
+  function copyVoucher() {
+    const voucher = document.getElementById("voucher").innerText;
+
+    navigator.clipboard.writeText(voucher);
+
+    alert("Voucher copied successfully.");
+  }
+</script>
 
 {% endblock %}

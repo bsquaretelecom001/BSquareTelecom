@@ -172,3 +172,23 @@ def profile(request):
             "customer": customer,
         },
     )
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+
+from .models import Device
+
+
+@login_required
+def disconnect_device(request, device_id):
+
+    device = get_object_or_404(
+        Device,
+        id=device_id,
+        customer__user=request.user,
+    )
+
+    device.connected = False
+
+    device.save()
+
+    return redirect("dashboard")

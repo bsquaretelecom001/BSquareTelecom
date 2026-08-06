@@ -1,21 +1,25 @@
 import uuid
-from datetime import date
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-from customers.models import Customer, Device
+from customers.models import Customer
+from customers.utils import (
+    check_customer_subscription,
+    get_days_remaining,
+)
 
-
-print("LOADED ACCOUNTS VIEWS.PY")
+from payments.models import Order
+from vouchers.models import Voucher
 
 
 def register(request):
+
     if request.method == "POST":
+
         first_name = request.POST["first_name"]
         last_name = request.POST["last_name"]
         username = request.POST["username"]
@@ -44,26 +48,20 @@ def register(request):
             phone=phone,
         )
 
-        login(request, user)
+        messages.success(
+            request,
+            "Account created successfully.",
+        )
 
-        return redirect("/dashboard/")
+        return redirect("login")
 
-    return render(request, "accounts/register.html")
+    return render(
+        request,
+        "accounts/register.html",
+    )
 
 
 def login_view(request):
-
-    from django.contrib.auth.models import User
-
-    print("========== USERS ==========")
-    print("TOTAL USERS:", User.objects.count())
-
-    for u in User.objects.all():
-        print(
-            f"Username={u.username}, "
-            f"Superuser={u.is_superuser}, "
-            f"Staff={u.is_staff}"
-        )
 
     if request.method == "POST":
 
@@ -76,43 +74,38 @@ def login_view(request):
             password=password,
         )
 
-        print("LOGIN RESULT:", user)
-
         if user:
+
             login(request, user)
+
             return redirect("dashboard")
 
-        messages.error(request, "Invalid username or password.")
+        messages.error(
+            request,
+            "Invalid username or password.",
+        )
 
-    return render(request, "accounts/login.html")
+    return render(
+        request,
+        "accounts/login.html",
+    )
+
 
 def logout_view(request):
+
     logout(request)
+
     return redirect("home")
 
 
+@login_required
 def dashboard(request):
-
-    print("DASHBOARD OPENED")
-    print("Authenticated:", request.user.is_authenticated)
-    print("Current User:", request.user)
-
-    if not request.user.is_authenticated:
-        return redirect("login")
 
     customer, created = Customer.objects.get_or_create(
         user=request.user
     )
 
-    if (
-        customer.active_plan
-        and customer.plan_expiry
-        and customer.plan_expiry <= timezone.now()
-    ):
-        customer.active_plan = False
-        customer.save()
-
-    from payments.models import Order
+    check_customer_subscription(customer)
 
     orders = Order.objects.filter(
         user=request.user
@@ -128,27 +121,27 @@ def dashboard(request):
         status="Pending"
     ).count()
 
-    days_remaining = None
+    days_remaining = get_days_remaining(customer)
 
-    if customer.plan_expiry:
-        days_remaining = (
-            customer.plan_expiry.date() - date.today()
-        ).days
-
-        if days_remaining < 0:
-            days_remaining = 0
-
-    # ===============================
-    # Devices
-    # ===============================
-
-    devices = Device.objects.filter(
-        customer=customer
-    )
+    devices = customer.devices.all()
 
     connected_devices = devices.filter(
         connected=True
     ).count()
+
+    latest_voucher = None
+
+    latest_order = orders.filter(
+        status="Paid"
+    ).first()
+
+    if latest_order and hasattr(latest_order, "voucher"):
+        latest_voucher = latest_order.voucher
+
+    voucher = Voucher.objects.filter(
+        customer=customer,
+        status="Active",
+    ).first()
 
     return render(
         request,
@@ -156,31 +149,31 @@ def dashboard(request):
         {
             "customer": customer,
             "orders": orders,
+            "voucher": voucher,
+            "latest_voucher": latest_voucher,
+            "devices": devices,
+            "connected_devices": connected_devices,
             "total_orders": total_orders,
             "paid_orders": paid_orders,
             "pending_orders": pending_orders,
             "days_remaining": days_remaining,
-
-            "devices": devices,
-            "connected_devices": connected_devices,
         },
     )
 
 
+@login_required
 def profile(request):
-
-    if not request.user.is_authenticated:
-        return redirect("login")
 
     customer, created = Customer.objects.get_or_create(
         user=request.user
     )
 
+    check_customer_subscription(customer)
+
     if request.method == "POST":
 
         request.user.first_name = request.POST["first_name"]
         request.user.last_name = request.POST["last_name"]
-        request.user.email = request.POST["email"]
         request.user.save()
 
         customer.phone = request.POST["phone"]
@@ -191,7 +184,7 @@ def profile(request):
 
         messages.success(
             request,
-            "Profile updated successfully."
+            "Profile updated successfully.",
         )
 
         return redirect("profile")
@@ -213,11 +206,32 @@ def generate_telegram_code(request):
     )
 
     customer.telegram_code = uuid.uuid4()
+
     customer.save()
 
     messages.success(
         request,
-        f"Your Telegram Link Code is:\n\n{customer.telegram_code}"
+        "Telegram link code generated successfully."
     )
 
     return redirect("dashboard")
+
+
+@login_required
+def my_vouchers(request):
+
+    customer = Customer.objects.get(
+        user=request.user
+    )
+
+    vouchers = Voucher.objects.filter(
+        customer=customer
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "dashboard/vouchers.html",
+        {
+            "vouchers": vouchers,
+        },
+    )

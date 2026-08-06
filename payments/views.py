@@ -1,5 +1,6 @@
 from datetime import timedelta
-
+from vouchers.models import Voucher
+from vouchers.utils import generate_voucher
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -105,6 +106,23 @@ def verify(request):
             customer.plan_expiry = expiry
             customer.save()
 
+            # Generate a unique voucher
+            voucher_code = generate_voucher()
+
+            while Voucher.objects.filter(
+                voucher_code=voucher_code
+            ).exists():
+                voucher_code = generate_voucher()
+
+            voucher = Voucher.objects.create(
+                customer=customer,
+                order=order,
+                voucher_code=voucher_code,
+                plan_name=order.plan.name,
+                data=order.plan.data,
+                expires_at=customer.plan_expiry,
+            )
+
             # Activate customer on Omada
             try:
                 omada = OmadaAPI()
@@ -147,13 +165,14 @@ Enjoy your internet service!
                 fail_silently=True,
             )
 
-        return render(
-            request,
-            "payments/success.html",
-            {
-                "order": order,
-            },
-        )
+            return render(
+                request,
+                "payments/success.html",
+                {
+                    "order": order,
+                    "voucher": voucher,
+                },
+            )
 
     return render(
         request,
@@ -174,12 +193,17 @@ def receipt(request, order_id):
         user=request.user,
     )
 
+    voucher = Voucher.objects.filter(
+        order=order
+    ).first()
+
     return render(
         request,
         "payments/receipt.html",
         {
             "order": order,
             "customer": customer,
+            "voucher": voucher,
         },
     )
 from django.http import JsonResponse

@@ -8,59 +8,57 @@ class Customer(models.Model):
 
     user = models.OneToOneField(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     phone = models.CharField(
         max_length=20,
-        blank=True
+        blank=True,
     )
 
     address = models.TextField(
-        blank=True
+        blank=True,
     )
 
     state = models.CharField(
         max_length=100,
-        blank=True
+        blank=True,
     )
 
     city = models.CharField(
         max_length=100,
-        blank=True
+        blank=True,
     )
 
     active_plan = models.BooleanField(
-        default=False
+        default=False,
     )
 
     plan_start = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     plan_expiry = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     data_balance = models.CharField(
         max_length=30,
-        default="0 GB"
+        default="0 GB",
     )
 
-    # Hotspot Login
     hotspot_username = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
     )
 
     hotspot_password = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
     )
 
-    # Telegram Integration
     telegram_id = models.BigIntegerField(
         null=True,
         blank=True,
@@ -73,13 +71,13 @@ class Customer(models.Model):
     )
 
     telegram_code = models.UUIDField(
+        default=uuid.uuid4,
         null=True,
         blank=True,
-        default=uuid.uuid4,
     )
 
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     def __str__(self):
@@ -94,27 +92,40 @@ class Device(models.Model):
         related_name="devices",
     )
 
+    voucher = models.ForeignKey(
+        "vouchers.Voucher",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
     device_name = models.CharField(
-        max_length=100
+        max_length=100,
+        default="Unknown Device",
+        blank=True,
     )
 
     mac_address = models.CharField(
-        max_length=50,
+        max_length=20,
         unique=True,
     )
 
-    ip_address = models.CharField(
-        max_length=50,
+    ip_address = models.GenericIPAddressField(
+        null=True,
         blank=True,
     )
 
     connected = models.BooleanField(
-        default=False,
+        default=True,
     )
 
     data_used = models.CharField(
         max_length=30,
-        default="0 GB",
+        default="0 MB",
+    )
+
+    first_connected = models.DateTimeField(
+        auto_now_add=True,
     )
 
     last_seen = models.DateTimeField(
@@ -122,4 +133,43 @@ class Device(models.Model):
     )
 
     def __str__(self):
-        return self.device_name
+        return f"{self.device_name} ({self.mac_address})"
+
+
+class DeviceSession(models.Model):
+
+    device = models.ForeignKey(
+        Device,
+        on_delete=models.CASCADE,
+        related_name="sessions",
+    )
+
+    voucher = models.ForeignKey(
+        "vouchers.Voucher",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    login_time = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    logout_time = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    data_used = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"{self.device} - {self.login_time}"

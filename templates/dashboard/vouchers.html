@@ -1,0 +1,92 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container py-5">
+  <h2 class="mb-4">🎟 My Vouchers</h2>
+
+  {% if vouchers %}
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Voucher</th>
+
+          <th>Plan</th>
+
+          <th>Data</th>
+
+          <th>Status</th>
+
+          <th>Device Limit</th>
+
+          <th>Expiry Date</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for voucher in vouchers %}
+
+        <tr>
+          <td>
+            <span id="voucher{{ voucher.id }}">
+              <strong> {{ voucher.voucher_code }} </strong>
+            </span>
+
+            <br /><br />
+
+            <button
+              class="btn btn-primary btn-sm"
+              onclick="copyVoucher('voucher{{ voucher.id }}')"
+            >
+              Copy Voucher
+            </button>
+          </td>
+
+          <td>{{ voucher.plan_name }}</td>
+
+          <td>{{ voucher.data }}</td>
+
+          <td>
+            {% if voucher.status == "Active" %}
+
+            <span class="badge bg-success"> Active </span>
+
+            {% elif voucher.status == "Used" %}
+
+            <span class="badge bg-warning text-dark"> Used </span>
+
+            {% else %}
+
+            <span class="badge bg-danger"> Expired </span>
+
+            {% endif %}
+          </td>
+
+          <td>{{ voucher.device_limit }}</td>
+
+          <td>{{ voucher.expires_at|date:"d M Y H:i" }}</td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+
+  <div class="alert alert-warning">You don't have any vouchers yet.</div>
+
+  {% endif %}
+</div>
+
+<script>
+  function copyVoucher(id) {
+    let voucher = document.getElementById(id).innerText;
+
+    navigator.clipboard.writeText(voucher);
+
+    alert("Voucher copied successfully!");
+  }
+</script>
+
+{% endblock %}
