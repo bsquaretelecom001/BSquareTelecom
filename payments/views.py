@@ -1,13 +1,15 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+from django.utils import timezone  # type: ignore[import]
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from telegram import Bot
-from django.conf import settings
+from django.shortcuts import render, get_object_or_404, redirect  # type: ignore[import]
+from django.core.mail import send_mail  # type: ignore[import]
+from django.conf import settings  # type: ignore[import]
+from django.contrib.auth.decorators import login_required  # type: ignore[import]
+from django.http import JsonResponse  # type: ignore[import]
+try:
+    from telegram import Bot  # type: ignore[import]
+except ImportError:  # pragma: no cover
+    Bot = None
 from vouchers.models import Voucher
 from vouchers.utils import generate_voucher
 from customers.models import Customer
@@ -74,6 +76,10 @@ def verify(request):
             reference=reference,
         )
 
+        voucher = Voucher.objects.filter(
+            order=order
+        ).first()
+
         if order.status != "Paid":
 
             order.status = "Paid"
@@ -131,11 +137,8 @@ def verify(request):
             # TELEGRAM NOTIFICATION
             # ==========================
             try:
-
                 if customer.telegram_id:
-
                     bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
-
                     bot.send_message(
                         chat_id=customer.telegram_id,
                         text=(
@@ -149,7 +152,6 @@ def verify(request):
                             f"{customer.plan_expiry.strftime('%d %B %Y')}"
                         ),
                     )
-
             except Exception as e:
                 print("Telegram Error:", e)
 
@@ -157,51 +159,45 @@ def verify(request):
             # ACTIVATE CUSTOMER ON OMADA
             # ==========================
             try:
-
                 omada = OmadaAPI()
-
                 omada.activate_customer(
                     customer,
                     order.plan,
                 )
-
             except Exception as e:
                 print("OMADA ERROR:", e)
 
-  # ==========================
-# SEND EMAIL (Temporarily Disabled)
-# ==========================
-
-# send_mail(
-#     subject="Payment Successful - B Square Telecom",
-#     message=f"""
-# Hello {order.user.first_name or order.user.username},
-#
-# Your payment was successful.
-#
-# Plan: {order.plan.name}
-# Data: {order.plan.data}
-# Amount: ₦{order.amount}
-#
-# Reference:
-# {order.reference}
-#
-# Start Date:
-# {customer.plan_start.strftime('%d %B %Y %I:%M %p')}
-#
-# Expiry Date:
-# {customer.plan_expiry.strftime('%d %B %Y %I:%M %p')}
-#
-# Thank you for choosing B Square Telecom.
-#
-# Enjoy your internet service!
-# """,
-#     from_email=settings.DEFAULT_FROM_EMAIL,
-#     recipient_list=[order.user.email],
-#     fail_silently=True,
-# )
-except Exception as e:
-    print("EMAIL ERROR:", e)
+            # ==========================
+            # SEND EMAIL (Temporarily Disabled)
+            # ==========================
+            # send_mail(
+            #     subject="Payment Successful - B Square Telecom",
+            #     message=f"""
+            # Hello {order.user.first_name or order.user.username},
+            #
+            # Your payment was successful.
+            #
+            # Plan: {order.plan.name}
+            # Data: {order.plan.data}
+            # Amount: ₦{order.amount}
+            #
+            # Reference:
+            # {order.reference}
+            #
+            # Start Date:
+            # {customer.plan_start.strftime('%d %B %Y %I:%M %p')}
+            #
+            # Expiry Date:
+            # {customer.plan_expiry.strftime('%d %B %Y %I:%M %p')}
+            #
+            # Thank you for choosing B Square Telecom.
+            #
+            # Enjoy your internet service!
+            # """,
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     recipient_list=[order.user.email],
+            #     fail_silently=True,
+            # )
 
         return render(
             request,
