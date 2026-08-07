@@ -169,11 +169,12 @@ def verify(request):
                 print("OMADA ERROR:", e)
 
             # ==========================
-            # SEND EMAIL
-            # ==========================
-            send_mail(
-                subject="Payment Successful - B Square Telecom",
-                message=f"""
+# SEND EMAIL
+# ==========================
+try:
+    send_mail(
+        subject="Payment Successful - B Square Telecom",
+        message=f"""
 Hello {order.user.first_name or order.user.username},
 
 Your payment was successful.
@@ -195,10 +196,13 @@ Thank you for choosing B Square Telecom.
 
 Enjoy your internet service!
 """,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[order.user.email],
-                fail_silently=True,
-            )
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[order.user.email],
+        fail_silently=True,
+    )
+
+except Exception as e:
+    print("EMAIL ERROR:", e)
 
         return render(
             request,
