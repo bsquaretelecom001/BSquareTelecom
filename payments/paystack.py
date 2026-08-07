@@ -13,7 +13,7 @@ def initialize_payment(email, amount, reference):
         "email": email,
         "amount": int(amount * 100),
         "reference": str(reference),
-        "callback_url": "http://127.0.0.1:8000/payment/verify/",
+        "callback_url": "https://bsquaretelecom.onrender.com/payment/verify/",
     }
 
     response = requests.post(

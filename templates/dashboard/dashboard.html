@@ -348,7 +348,7 @@
             {% endif %}
 
             <a
-                href="{% url 'generate_telegram_code' %}"
+                {% url 'telegram_link' %}
                 class="btn btn-primary">
 
                 Generate New Code
