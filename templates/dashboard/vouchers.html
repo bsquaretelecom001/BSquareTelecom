@@ -1,12 +1,12 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="container py-5">
-  <h2 class="mb-4">🎟 My Vouchers</h2>
+  <h2 class="mb-4">🎫 My Vouchers</h2>
 
   {% if vouchers %}
 
   <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
+    <table class="table table-bordered table-hover">
       <thead class="table-dark">
         <tr>
           <th>Voucher</th>
@@ -17,9 +17,7 @@
 
           <th>Status</th>
 
-          <th>Device Limit</th>
-
-          <th>Expiry Date</th>
+          <th>Expiry</th>
         </tr>
       </thead>
 
@@ -28,18 +26,7 @@
 
         <tr>
           <td>
-            <span id="voucher{{ voucher.id }}">
-              <strong> {{ voucher.voucher_code }} </strong>
-            </span>
-
-            <br /><br />
-
-            <button
-              class="btn btn-primary btn-sm"
-              onclick="copyVoucher('voucher{{ voucher.id }}')"
-            >
-              Copy Voucher
-            </button>
+            <strong>{{ voucher.voucher_code }}</strong>
           </td>
 
           <td>{{ voucher.plan_name }}</td>
@@ -53,7 +40,7 @@
 
             {% elif voucher.status == "Used" %}
 
-            <span class="badge bg-warning text-dark"> Used </span>
+            <span class="badge bg-warning"> Used </span>
 
             {% else %}
 
@@ -61,8 +48,6 @@
 
             {% endif %}
           </td>
-
-          <td>{{ voucher.device_limit }}</td>
 
           <td>{{ voucher.expires_at|date:"d M Y H:i" }}</td>
         </tr>
@@ -74,19 +59,11 @@
 
   {% else %}
 
-  <div class="alert alert-warning">You don't have any vouchers yet.</div>
+  <div class="alert alert-warning">
+    You have not purchased any data plan yet.
+  </div>
 
   {% endif %}
 </div>
-
-<script>
-  function copyVoucher(id) {
-    let voucher = document.getElementById(id).innerText;
-
-    navigator.clipboard.writeText(voucher);
-
-    alert("Voucher copied successfully!");
-  }
-</script>
 
 {% endblock %}

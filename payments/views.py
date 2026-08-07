@@ -1,14 +1,18 @@
 from datetime import timedelta
-from vouchers.models import Voucher
-from vouchers.utils import generate_voucher
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-
+from django.http import JsonResponse
+from telegram import Bot
+from django.conf import settings
+from vouchers.models import Voucher
+from vouchers.utils import generate_voucher
 from customers.models import Customer
 from hotspot.omada import OmadaAPI
+from plans.models import InternetPlan
 
 from .models import Order
 from .paystack import initialize_payment, verify_payment
@@ -106,7 +110,7 @@ def verify(request):
             customer.plan_expiry = expiry
             customer.save()
 
-            # Generate a unique voucher
+            # Generate voucher
             voucher_code = generate_voucher()
 
             while Voucher.objects.filter(
@@ -123,8 +127,37 @@ def verify(request):
                 expires_at=customer.plan_expiry,
             )
 
-            # Activate customer on Omada
+            # ==========================
+            # TELEGRAM NOTIFICATION
+            # ==========================
             try:
+
+                if customer.telegram_id:
+
+                    bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+
+                    bot.send_message(
+                        chat_id=customer.telegram_id,
+                        text=(
+                            "✅ PAYMENT SUCCESSFUL\n\n"
+                            f"📦 Plan: {order.plan.name}\n"
+                            f"📶 Data: {order.plan.data}\n"
+                            f"💰 Amount: ₦{order.amount}\n\n"
+                            f"🎟 Voucher:\n"
+                            f"{voucher.voucher_code}\n\n"
+                            f"📅 Expires:\n"
+                            f"{customer.plan_expiry.strftime('%d %B %Y')}"
+                        ),
+                    )
+
+            except Exception as e:
+                print("Telegram Error:", e)
+
+            # ==========================
+            # ACTIVATE CUSTOMER ON OMADA
+            # ==========================
+            try:
+
                 omada = OmadaAPI()
 
                 omada.activate_customer(
@@ -135,7 +168,9 @@ def verify(request):
             except Exception as e:
                 print("OMADA ERROR:", e)
 
-            # Send payment confirmation email
+            # ==========================
+            # SEND EMAIL
+            # ==========================
             send_mail(
                 subject="Payment Successful - B Square Telecom",
                 message=f"""
@@ -159,26 +194,25 @@ Expiry Date:
 Thank you for choosing B Square Telecom.
 
 Enjoy your internet service!
-                """,
+""",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[order.user.email],
                 fail_silently=True,
             )
 
-            return render(
-                request,
-                "payments/success.html",
-                {
-                    "order": order,
-                    "voucher": voucher,
-                },
-            )
+        return render(
+            request,
+            "payments/success.html",
+            {
+                "order": order,
+                "voucher": voucher,
+            },
+        )
 
     return render(
         request,
         "payments/failed.html",
     )
-
 
 @login_required
 def receipt(request, order_id):
@@ -206,8 +240,6 @@ def receipt(request, order_id):
             "voucher": voucher,
         },
     )
-from django.http import JsonResponse
-from plans.models import InternetPlan
 
 
 def telegram_payment(request, plan_id):
@@ -216,6 +248,10 @@ def telegram_payment(request, plan_id):
         InternetPlan,
         id=plan_id,
     )
+
+    # Ensure only authenticated users can create orders
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": False, "error": "authentication_required"}, status=401)
 
     order = Order.objects.create(
         user=request.user,

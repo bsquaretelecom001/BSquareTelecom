@@ -205,17 +205,25 @@ def generate_telegram_code(request):
         user=request.user
     )
 
+    if customer.telegram_id:
+
+        messages.info(
+            request,
+            "Your Telegram account is already linked."
+        )
+
+        return redirect("dashboard")
+
     customer.telegram_code = uuid.uuid4()
 
     customer.save()
 
     messages.success(
         request,
-        "Telegram link code generated successfully."
+        "A new Telegram link code has been generated."
     )
 
     return redirect("dashboard")
-
 
 @login_required
 def my_vouchers(request):
