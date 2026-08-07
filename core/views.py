@@ -24,27 +24,16 @@ def contact(request):
         email = request.POST["email"]
         message = request.POST["message"]
 
-        send_mail(
-            subject=f"New Contact Message from {name}",
-            message=f"""
-Name: {name}
-
-Email: {email}
-
-Message:
-
-{message}
-            """,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[
-                settings.DEFAULT_FROM_EMAIL,
-            ],
-            fail_silently=True,
-        )
+        # Temporary until SMTP is configured
+        print("========== CONTACT MESSAGE ==========")
+        print("Name:", name)
+        print("Email:", email)
+        print("Message:", message)
+        print("=====================================")
 
         messages.success(
             request,
-            "Your message has been sent successfully."
+            "Your message has been received successfully. We will contact you soon."
         )
 
     return render(

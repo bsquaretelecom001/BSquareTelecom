@@ -1,23 +1,70 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
 
-<div class="container py-5" style="max-width: 600px">
-  <h2 class="mb-4 text-center">Login</h2>
+{% block content %}
 
-  <form method="POST">
-    {% csrf_token %}
+<div class="container mt-5" style="max-width:500px;">
 
-    <div class="mb-3">
-      <label>Username</label>
-      <input type="text" name="username" class="form-control" required />
+    <h2 class="mb-4 text-center">
+        Login
+    </h2>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">
+                Username
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                class="form-control"
+                required
+            >
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                class="form-control"
+                required
+            >
+        </div>
+
+        <div class="text-end mb-3">
+            <a href="{% url 'password_reset' %}">
+                Forgot Password?
+            </a>
+        </div>
+
+        <button
+            type="submit"
+            class="btn btn-primary w-100"
+        >
+            Login
+        </button>
+
+    </form>
+
+    <hr>
+
+    <div class="text-center">
+
+        Don't have an account?
+
+        <a href="{% url 'register' %}">
+            Register
+        </a>
+
     </div>
 
-    <div class="mb-4">
-      <label>Password</label>
-      <input type="password" name="password" class="form-control" required />
-    </div>
-
-    <button class="btn btn-primary w-100">Login</button>
-  </form>
 </div>
 
 {% endblock %}
