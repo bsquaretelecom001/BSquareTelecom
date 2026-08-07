@@ -168,39 +168,38 @@ def verify(request):
             except Exception as e:
                 print("OMADA ERROR:", e)
 
-            # ==========================
-# SEND EMAIL
+  # ==========================
+# SEND EMAIL (Temporarily Disabled)
 # ==========================
-try:
-    send_mail(
-        subject="Payment Successful - B Square Telecom",
-        message=f"""
-Hello {order.user.first_name or order.user.username},
 
-Your payment was successful.
-
-Plan: {order.plan.name}
-Data: {order.plan.data}
-Amount: ₦{order.amount}
-
-Reference:
-{order.reference}
-
-Start Date:
-{customer.plan_start.strftime('%d %B %Y %I:%M %p')}
-
-Expiry Date:
-{customer.plan_expiry.strftime('%d %B %Y %I:%M %p')}
-
-Thank you for choosing B Square Telecom.
-
-Enjoy your internet service!
-""",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[order.user.email],
-        fail_silently=True,
-    )
-
+# send_mail(
+#     subject="Payment Successful - B Square Telecom",
+#     message=f"""
+# Hello {order.user.first_name or order.user.username},
+#
+# Your payment was successful.
+#
+# Plan: {order.plan.name}
+# Data: {order.plan.data}
+# Amount: ₦{order.amount}
+#
+# Reference:
+# {order.reference}
+#
+# Start Date:
+# {customer.plan_start.strftime('%d %B %Y %I:%M %p')}
+#
+# Expiry Date:
+# {customer.plan_expiry.strftime('%d %B %Y %I:%M %p')}
+#
+# Thank you for choosing B Square Telecom.
+#
+# Enjoy your internet service!
+# """,
+#     from_email=settings.DEFAULT_FROM_EMAIL,
+#     recipient_list=[order.user.email],
+#     fail_silently=True,
+# )
 except Exception as e:
     print("EMAIL ERROR:", e)
 
