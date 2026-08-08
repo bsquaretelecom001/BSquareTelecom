@@ -25,6 +25,11 @@ class ResendEmailBackend(BaseEmailBackend):
                     "subject": email_message.subject,
                     "text": email_message.body,
                 }
+                print(
+    "RESEND EMAIL:",
+    params["to"],
+    params["subject"],
+)
 
                 resend.Emails.send(params)
 
