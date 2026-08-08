@@ -175,6 +175,7 @@ DEFAULT_FROM_EMAIL = os.getenv(
     "onboarding@resend.dev",
 )
 EMAIL_BACKEND = "core.email_backend.ResendEmailBackend"
+print("RESEND CONFIG:", bool(RESEND_API_KEY), DEFAULT_FROM_EMAIL)
 LOGIN_REDIRECT_URL = "/dashboard/"
 
 LOGIN_URL = "/login/"
