@@ -27,6 +27,7 @@ ALLOWED_HOSTS = [
     "bsquaretelecom.onrender.com",
     "127.0.0.1",
     "localhost",
+    ".vercel.app",
 ]
 
 # -------------------------------------------------
