@@ -13,7 +13,7 @@ def initialize_payment(email, amount, reference):
         "email": email,
         "amount": int(amount * 100),
         "reference": str(reference),
-        "callback_url": "https://bsquaretelecom.onrender.com/payment/verify/",
+       "callback_url": "https://bsquaretelecom.vercel.app/payment/verify/",
     }
 
     response = requests.post(
