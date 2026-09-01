@@ -24,7 +24,6 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 TELEGRAM_BOT_TOKEN = os.getenv("8862627544:AAGYJXH9uJsuWlJ3iaYVQmKPv5mTt4bSbiw")
 
 ALLOWED_HOSTS = [
-    "bsquaretelecom.onrender.com",
     "127.0.0.1",
     "localhost",
     ".vercel.app",
