@@ -56,7 +56,7 @@ def payment_page(request, order_id):
     )
 
 
-@login_required
+
 def verify(request):
 
     reference = request.GET.get("reference")
