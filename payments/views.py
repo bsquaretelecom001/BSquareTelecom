@@ -1,17 +1,17 @@
-from datetime import datetime, timedelta
-from django.utils import timezone  # type: ignore[import]
+from datetime import timedelta
 
+from django.utils import timezone  # type: ignore[import]
 from django.shortcuts import render, get_object_or_404, redirect  # type: ignore[import]
-from django.core.mail import send_mail  # type: ignore[import]
 from django.conf import settings  # type: ignore[import]
 from django.contrib.auth.decorators import login_required  # type: ignore[import]
 from django.http import JsonResponse  # type: ignore[import]
+
 try:
     from telegram import Bot  # type: ignore[import]
 except ImportError:  # pragma: no cover
     Bot = None
+
 from vouchers.models import Voucher
-from vouchers.utils import generate_voucher
 from customers.models import Customer
 from hotspot.omada import OmadaAPI
 from plans.models import InternetPlan
@@ -56,7 +56,6 @@ def payment_page(request, order_id):
     )
 
 
-
 def verify(request):
 
     reference = request.GET.get("reference")
@@ -80,16 +79,18 @@ def verify(request):
             order=order
         ).first()
 
+        # Only process the payment once
         if order.status != "Paid":
-
-            order.status = "Paid"
-            order.save()
 
             customer = Customer.objects.get(
                 user=order.user
             )
 
             now = timezone.now()
+
+            # ==========================================
+            # CALCULATE PLAN EXPIRY
+            # ==========================================
 
             if (
                 customer.active_plan
@@ -102,7 +103,7 @@ def verify(request):
 
             validity = order.plan.validity.lower()
 
-            if "daily" in validity:
+            if "daily" in validity or "day" in validity:
                 expiry = start_date + timedelta(days=1)
 
             elif "week" in validity:
@@ -111,34 +112,92 @@ def verify(request):
             else:
                 expiry = start_date + timedelta(days=30)
 
+            # ==========================================
+            # CREATE REAL OMADA VOUCHER
+            # ==========================================
+
+            try:
+                omada = OmadaAPI()
+
+                omada_result = omada.activate_customer(
+                    customer,
+                    order.plan,
+                )
+
+                print("OMADA RESULT:")
+                print(omada_result)
+
+                if not omada_result.get("status"):
+                    raise Exception(
+                        "Omada did not return a successful voucher result."
+                    )
+
+                real_voucher_code = omada_result.get(
+                    "voucher_code"
+                )
+
+                if not real_voucher_code:
+                    raise Exception(
+                        "Omada created no voucher code."
+                    )
+
+            except Exception as e:
+
+                print("OMADA ERROR:", e)
+
+                return render(
+                    request,
+                    "payments/failed.html",
+                    {
+                        "error": (
+                            "Payment was received, but we could not "
+                            "activate your internet voucher yet. "
+                            "Please contact B Square Telecom support."
+                        )
+                    },
+                )
+
+            # ==========================================
+            # SAVE REAL OMADA VOUCHER
+            # ==========================================
+
+            voucher = Voucher.objects.create(
+                customer=customer,
+                order=order,
+                voucher_code=real_voucher_code,
+                plan_name=order.plan.name,
+                data=order.plan.data,
+                expires_at=expiry,
+            )
+
+            # ==========================================
+            # UPDATE CUSTOMER PLAN
+            # ==========================================
+
             customer.active_plan = True
             customer.plan_start = now
             customer.plan_expiry = expiry
             customer.save()
 
-            # Generate voucher
-            voucher_code = generate_voucher()
+            # ==========================================
+            # MARK ORDER AS PAID
+            # ==========================================
 
-            while Voucher.objects.filter(
-                voucher_code=voucher_code
-            ).exists():
-                voucher_code = generate_voucher()
+            order.status = "Paid"
+            order.save()
 
-            voucher = Voucher.objects.create(
-                customer=customer,
-                order=order,
-                voucher_code=voucher_code,
-                plan_name=order.plan.name,
-                data=order.plan.data,
-                expires_at=customer.plan_expiry,
-            )
-
-            # ==========================
+            # ==========================================
             # TELEGRAM NOTIFICATION
-            # ==========================
+            # ==========================================
+
             try:
-                if customer.telegram_id:
-                    bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+
+                if customer.telegram_id and Bot is not None:
+
+                    bot = Bot(
+                        token=settings.TELEGRAM_BOT_TOKEN
+                    )
+
                     bot.send_message(
                         chat_id=customer.telegram_id,
                         text=(
@@ -152,24 +211,16 @@ def verify(request):
                             f"{customer.plan_expiry.strftime('%d %B %Y')}"
                         ),
                     )
+
             except Exception as e:
+
                 print("Telegram Error:", e)
 
-            # ==========================
-            # ACTIVATE CUSTOMER ON OMADA
-            # ==========================
-            try:
-                omada = OmadaAPI()
-                omada.activate_customer(
-                    customer,
-                    order.plan,
-                )
-            except Exception as e:
-                print("OMADA ERROR:", e)
+            # ==========================================
+            # EMAIL NOTIFICATION
+            # TEMPORARILY DISABLED
+            # ==========================================
 
-            # ==========================
-            # SEND EMAIL (Temporarily Disabled)
-            # ==========================
             # send_mail(
             #     subject="Payment Successful - B Square Telecom",
             #     message=f"""
@@ -180,6 +231,9 @@ def verify(request):
             # Plan: {order.plan.name}
             # Data: {order.plan.data}
             # Amount: ₦{order.amount}
+            #
+            # Voucher:
+            # {voucher.voucher_code}
             #
             # Reference:
             # {order.reference}
@@ -199,6 +253,10 @@ def verify(request):
             #     fail_silently=True,
             # )
 
+        # ==========================================
+        # PAYMENT SUCCESS PAGE
+        # ==========================================
+
         return render(
             request,
             "payments/success.html",
@@ -208,10 +266,15 @@ def verify(request):
             },
         )
 
+    # ==============================================
+    # PAYMENT FAILED
+    # ==============================================
+
     return render(
         request,
         "payments/failed.html",
     )
+
 
 @login_required
 def receipt(request, order_id):
@@ -250,7 +313,14 @@ def telegram_payment(request, plan_id):
 
     # Ensure only authenticated users can create orders
     if not request.user.is_authenticated:
-        return JsonResponse({"status": False, "error": "authentication_required"}, status=401)
+
+        return JsonResponse(
+            {
+                "status": False,
+                "error": "authentication_required",
+            },
+            status=401,
+        )
 
     order = Order.objects.create(
         user=request.user,
@@ -266,11 +336,15 @@ def telegram_payment(request, plan_id):
 
     if response["status"]:
 
-        return JsonResponse({
-            "status": True,
-            "url": response["data"]["authorization_url"],
-        })
+        return JsonResponse(
+            {
+                "status": True,
+                "url": response["data"]["authorization_url"],
+            }
+        )
 
-    return JsonResponse({
-        "status": False,
-    })
+    return JsonResponse(
+        {
+            "status": False,
+        }
+    )

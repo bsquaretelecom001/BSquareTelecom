@@ -190,3 +190,23 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 AUTO_CREATE_SUPERUSER = os.getenv("AUTO_CREATE_SUPERUSER", "False") == "True"
 
 CREATE_ADMIN = os.getenv("CREATE_ADMIN", "False") == "True"
+
+# -------------------------------------------------
+# OMADA CONTROLLER / OC200
+# -------------------------------------------------
+
+OMADA_BASE_URL = os.getenv(
+    "OMADA_BASE_URL",
+    "https://192.168.10.4:443",
+)
+
+OMADA_ID = os.getenv("OMADA_ID")
+
+OMADA_CLIENT_ID = os.getenv("OMADA_CLIENT_ID")
+
+OMADA_CLIENT_SECRET = os.getenv("OMADA_CLIENT_SECRET")
+
+OMADA_SITE_ID = os.getenv(
+    "OMADA_SITE_ID",
+    "6a9c8e2d6d8c5508c79089e4",
+)
