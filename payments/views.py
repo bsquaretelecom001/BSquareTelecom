@@ -146,16 +146,12 @@ def verify(request):
                 print("OMADA ERROR:", e)
 
                 return render(
-                    request,
-                    "payments/failed.html",
-                    {
-                        "error": (
-                            "Payment was received, but we could not "
-                            "activate your internet voucher yet. "
-                            "Please contact B Square Telecom support."
-                        )
-                    },
-                )
+    request,
+    "payments/failed.html",
+    {
+        "error": f"OMADA ERROR: {e}"
+    },
+)
 
             # ==========================================
             # SAVE REAL OMADA VOUCHER
