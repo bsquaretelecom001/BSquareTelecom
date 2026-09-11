@@ -4,14 +4,16 @@ import os
 import dj_database_url
 
 from dotenv import load_dotenv
+
+
 # -------------------------------------------------
 # BASE DIRECTORY
 # -------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file
 load_dotenv(BASE_DIR / ".env")
+
 
 # -------------------------------------------------
 # SECURITY
@@ -21,13 +23,12 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-TELEGRAM_BOT_TOKEN = os.getenv("8862627544:AAGYJXH9uJsuWlJ3iaYVQmKPv5mTt4bSbiw")
-
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     ".vercel.app",
 ]
+
 
 # -------------------------------------------------
 # APPS
@@ -49,8 +50,9 @@ INSTALLED_APPS = [
     "dashboard",
     "hotspot",
     "telegrambot",
-     "vouchers" 
+    "vouchers",
 ]
+
 
 # -------------------------------------------------
 # MIDDLEWARE
@@ -69,7 +71,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "config.urls"
+
 
 # -------------------------------------------------
 # TEMPLATES
@@ -90,7 +94,9 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = "config.wsgi.application"
+
 
 # -------------------------------------------------
 # DATABASE
@@ -104,6 +110,7 @@ DATABASES = {
         )
     )
 }
+
 
 # -------------------------------------------------
 # PASSWORD VALIDATORS
@@ -124,6 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # -------------------------------------------------
 # INTERNATIONALIZATION
 # -------------------------------------------------
@@ -135,6 +143,7 @@ TIME_ZONE = "Africa/Lagos"
 USE_I18N = True
 
 USE_TZ = True
+
 
 # -------------------------------------------------
 # STATIC FILES
@@ -152,17 +161,36 @@ STATICFILES_STORAGE = (
     "whitenoise.storage.CompressedManifestStaticFilesStorage"
 )
 
+
+# -------------------------------------------------
+# MEDIA FILES
+# -------------------------------------------------
+
 MEDIA_URL = "/media/"
+
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+# -------------------------------------------------
+# DEFAULT FIELD
+# -------------------------------------------------
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # -------------------------------------------------
 # PAYSTACK
 # -------------------------------------------------
 
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY")
+
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
+
+PAYSTACK_CALLBACK_URL = os.getenv(
+    "PAYSTACK_CALLBACK_URL",
+    "http://127.0.0.1:8000/payment/verify/",
+)
+
 
 # -------------------------------------------------
 # EMAIL
@@ -171,13 +199,21 @@ PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = "smtp.gmail.com"
+
 EMAIL_PORT = 587
+
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+# -------------------------------------------------
+# LOGIN / LOGOUT
+# -------------------------------------------------
 
 LOGIN_REDIRECT_URL = "/dashboard/"
 
@@ -185,11 +221,26 @@ LOGIN_URL = "/login/"
 
 LOGOUT_REDIRECT_URL = "/"
 
+
+# -------------------------------------------------
+# TELEGRAM
+# -------------------------------------------------
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-AUTO_CREATE_SUPERUSER = os.getenv("AUTO_CREATE_SUPERUSER", "False") == "True"
 
-CREATE_ADMIN = os.getenv("CREATE_ADMIN", "False") == "True"
+# -------------------------------------------------
+# ADMIN
+# -------------------------------------------------
+
+AUTO_CREATE_SUPERUSER = (
+    os.getenv("AUTO_CREATE_SUPERUSER", "False") == "True"
+)
+
+CREATE_ADMIN = (
+    os.getenv("CREATE_ADMIN", "False") == "True"
+)
+
 
 # -------------------------------------------------
 # OMADA CONTROLLER / OC200
@@ -197,7 +248,7 @@ CREATE_ADMIN = os.getenv("CREATE_ADMIN", "False") == "True"
 
 OMADA_BASE_URL = os.getenv(
     "OMADA_BASE_URL",
-    "https://192.168.10.4:443",
+    "https://192.168.10.5:443",
 )
 
 OMADA_ID = os.getenv("OMADA_ID")
