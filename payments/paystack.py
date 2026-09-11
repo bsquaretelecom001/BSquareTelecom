@@ -9,11 +9,19 @@ def initialize_payment(email, amount, reference):
         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
     }
 
+    # Use local callback during development.
+    # Use Vercel callback in production.
+    callback_url = getattr(
+        settings,
+        "PAYSTACK_CALLBACK_URL",
+        "http://127.0.0.1:8000/payment/verify/",
+    )
+
     data = {
         "email": email,
         "amount": int(amount * 100),
         "reference": str(reference),
-       "callback_url": "https://bsquaretelecom.vercel.app/payment/verify/",
+        "callback_url": callback_url,
     }
 
     response = requests.post(

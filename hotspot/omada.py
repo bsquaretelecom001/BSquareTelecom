@@ -14,16 +14,11 @@ class OmadaAPI:
 
         self.session = requests.Session()
 
-        # OC200 uses a self-signed HTTPS certificate locally.
         urllib3.disable_warnings(
             urllib3.exceptions.InsecureRequestWarning
         )
 
     def get_access_token(self):
-        """
-        Get a fresh access token from the OC200.
-        """
-
         url = (
             f"{self.base_url}"
             "/openapi/authorize/token"
@@ -55,10 +50,6 @@ class OmadaAPI:
         return data["result"]["accessToken"]
 
     def _headers(self):
-        """
-        Create authorization headers for Omada API requests.
-        """
-
         token = self.get_access_token()
 
         return {
@@ -67,10 +58,6 @@ class OmadaAPI:
         }
 
     def get_sites(self):
-        """
-        Test connection by retrieving sites from OC200.
-        """
-
         url = (
             f"{self.base_url}"
             f"/openapi/v1/{self.omadac_id}/sites"
@@ -96,10 +83,6 @@ class OmadaAPI:
         upload_limit=None,
         traffic_limit=None,
     ):
-        """
-        Create a real voucher on the Omada Controller.
-        """
-
         url = (
             f"{self.base_url}"
             f"/openapi/v1/{self.omadac_id}"
@@ -160,7 +143,6 @@ class OmadaAPI:
 
         group_id = data["result"]["id"]
 
-        # Retrieve the voucher generated inside the group.
         voucher_url = f"{url}/{group_id}"
 
         voucher_response = self.session.get(
@@ -204,10 +186,6 @@ class OmadaAPI:
         }
 
     def activate_customer(self, customer, plan):
-        """
-        Create a real Omada voucher for a paid customer.
-        """
-
         traffic_limit = None
 
         data = plan.data.upper().replace(" ", "")
@@ -222,14 +200,20 @@ class OmadaAPI:
 
         validity = plan.validity.lower()
 
-        if "daily" in validity or "day" in validity:
-            duration = 1440
+        if (
+            "30 day" in validity
+            or "monthly" in validity
+            or "month" in validity
+        ):
+            duration = 43200
 
         elif "week" in validity:
             duration = 10080
 
+        elif "daily" in validity or "day" in validity:
+            duration = 1440
+
         else:
-            # Monthly = 30 days
             duration = 43200
 
         result = self.create_voucher(

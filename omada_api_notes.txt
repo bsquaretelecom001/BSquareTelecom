@@ -1,0 +1,98 @@
+BSQUARE TELECOM — OMADA API SETUP NOTES
+========================================
+
+CONTROLLER
+----------
+Controller: OC200
+Controller IP: 192.168.10.4
+Controller Version: 5.14.26.23
+Interface Access Address:
+https://192.168.10.4:443
+
+SITE
+----
+Site Name: BSquareTelecom
+Region: Nigeria
+Time Zone: Africa/Algiers
+Scenario: Hotel
+
+OPEN API
+--------
+Mode: Client
+Role: Administrator
+Site Privileges: All
+
+AUTHENTICATION
+--------------
+Token endpoint:
+
+https://192.168.10.4:443/openapi/authorize/token?grant_type=client_credentials
+
+Python authentication test:
+
+import requests
+import urllib3
+
+urllib3.disable_warnings()
+
+url = "https://192.168.10.4:443/openapi/authorize/token?grant_type=client_credentials"
+
+body = {
+    "omadacId": "YOUR_OMADA_ID",
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret": "YOUR_CLIENT_SECRET"
+}
+
+r = requests.post(url, json=body, verify=False)
+
+print(r.status_code)
+print(r.text)
+
+
+SUCCESSFUL AUTHENTICATION
+-------------------------
+The authentication test successfully returned an access token.
+
+IMPORTANT:
+-----------
+DO NOT permanently save or publish the access token.
+The access token is temporary.
+
+DO NOT put Client Secret directly inside Django source code.
+
+Permanent credentials to keep privately:
+- Omada ID
+- Client ID
+- Client Secret
+
+API TEST — GET SITES
+--------------------
+
+headers = {
+    "Authorization": "AccessToken=YOUR_ACCESS_TOKEN"
+}
+
+url = "https://192.168.10.4:443/openapi/v1/YOUR_OMADA_ID/sites?pageSize=10&page=1"
+
+r = requests.get(url, headers=headers, verify=False)
+
+print(r.status_code)
+print(r.text)
+
+
+RESULT
+------
+Authentication: SUCCESS
+API access: SUCCESS
+Site returned: BSquareTelecom
+Site ID:
+6a9c8e2d6d8c5508c79089e4
+
+NEXT STEP
+---------
+Connect the Django B Square Telecom backend to the Omada API.
+
+Existing files to inspect:
+hotspot/omada.py
+payments/views.py
+payments/paystack.py

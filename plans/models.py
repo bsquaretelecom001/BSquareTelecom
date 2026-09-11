@@ -19,6 +19,8 @@ class InternetPlan(models.Model):
 
     data = models.CharField(max_length=30)
 
+
+
     validity = models.CharField(max_length=30)
 
     price = models.DecimalField(
@@ -30,7 +32,6 @@ class InternetPlan(models.Model):
 
     active = models.BooleanField(default=True)
 
-    # NEW FEATURES
     popular = models.BooleanField(
         default=False,
         help_text="Show 'Most Popular' badge on this plan."
