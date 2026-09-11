@@ -7,15 +7,10 @@ def initialize_payment(email, amount, reference):
 
     headers = {
         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
     }
 
-    # Use local callback during development.
-    # Use Vercel callback in production.
-    callback_url = getattr(
-        settings,
-        "PAYSTACK_CALLBACK_URL",
-        "http://127.0.0.1:8000/payment/verify/",
-    )
+    callback_url = settings.PAYSTACK_CALLBACK_URL
 
     data = {
         "email": email,
@@ -28,13 +23,17 @@ def initialize_payment(email, amount, reference):
         url,
         json=data,
         headers=headers,
+        timeout=30,
     )
 
     return response.json()
 
 
 def verify_payment(reference):
-    url = f"https://api.paystack.co/transaction/verify/{reference}"
+    url = (
+        f"https://api.paystack.co/"
+        f"transaction/verify/{reference}"
+    )
 
     headers = {
         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
@@ -43,6 +42,7 @@ def verify_payment(reference):
     response = requests.get(
         url,
         headers=headers,
+        timeout=30,
     )
 
     return response.json()
