@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["192.168.10.4", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["192.168.10.4", "localhost", "127.0.0.1","bsquaretelecom.vercel.app"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
