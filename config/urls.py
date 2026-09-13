@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -12,6 +13,9 @@ urlpatterns = [
 
     # Customers
     path("", include("customers.urls")),
+
+    # Hotspot / Captive Portal
+    path("hotspot/", include("hotspot.urls")),
 
     # Plans & Payments
     path("plans/", include("plans.urls")),

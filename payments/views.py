@@ -12,6 +12,8 @@ from customers.models import Customer
 from vouchers.models import Voucher
 from plans.models import InternetPlan
 
+from hotspot.omada import OmadaAPI
+
 from .models import Order
 from .paystack import initialize_payment, verify_payment
 from .tasks import generate_voucher_for_order
@@ -72,8 +74,43 @@ def verify(request):
             reference=reference,
         )
 
-        # Payment has been successfully confirmed.
-        # Record the payment BEFORE attempting Omada.
+        # -------------------------------------------------
+        # Retrieve the device that started the Omada
+        # captive portal session.
+        # -------------------------------------------------
+
+        omada_client_mac = request.session.get(
+            "omada_clientMac"
+        )
+
+        omada_client_ip = request.session.get(
+            "omada_clientIp"
+        )
+
+        omada_redirect_url = request.session.get(
+            "omada_redirectUrl"
+        )
+
+        print(
+            "OMADA CLIENT MAC:",
+            omada_client_mac
+        )
+
+        print(
+            "OMADA CLIENT IP:",
+            omada_client_ip
+        )
+
+        print(
+            "OMADA REDIRECT URL:",
+            omada_redirect_url
+        )
+
+        # -------------------------------------------------
+        # Mark payment as successful BEFORE attempting
+        # any network authorization.
+        # -------------------------------------------------
+
         if order.status != "Paid":
 
             order.status = "Paid"
@@ -88,10 +125,83 @@ def verify(request):
                 ]
             )
 
-        # Try to generate the Omada voucher.
-        voucher_created = generate_voucher_for_order(
-            order
-        )
+        # -------------------------------------------------
+        # NEW:
+        # Attempt direct authorization of the device.
+        # -------------------------------------------------
+
+        device_authorized = False
+        device_authorization_error = ""
+
+        if omada_client_mac and omada_client_ip:
+
+            try:
+
+                omada = OmadaAPI()
+
+                authorization = (
+                    omada.authorize_customer_device(
+                        client_mac=omada_client_mac,
+                        client_ip=omada_client_ip,
+                        redirect_url=omada_redirect_url,
+                        plan=order.plan,
+                    )
+                )
+
+                if authorization.get("status"):
+
+                    device_authorized = True
+
+                    print(
+                        "OMADA DEVICE AUTHORIZED:",
+                        omada_client_mac,
+                    )
+
+            except Exception as e:
+
+                device_authorization_error = str(e)
+
+                print(
+                    "OMADA DEVICE AUTHORIZATION ERROR:",
+                    e,
+                )
+
+        else:
+
+            device_authorization_error = (
+                "Omada client information was not "
+                "available in the session."
+            )
+
+            print(
+                "OMADA DEVICE AUTHORIZATION SKIPPED:",
+                device_authorization_error,
+            )
+
+        # -------------------------------------------------
+        # EXISTING VOUCHER SYSTEM
+        #
+        # We keep this for now as the fallback.
+        # -------------------------------------------------
+
+        voucher_created = False
+
+        try:
+
+            voucher_created = (
+                generate_voucher_for_order(
+                    order
+                )
+            )
+
+        except Exception as e:
+
+            print(
+                "VOUCHER GENERATION ERROR:",
+                e,
+            )
+
+            order.refresh_from_db()
 
         order.refresh_from_db()
 
@@ -99,9 +209,60 @@ def verify(request):
             order=order
         ).first()
 
-        # ---------------------------------------------
+        # -------------------------------------------------
+        # DIRECT DEVICE AUTHORIZATION SUCCESS
+        # -------------------------------------------------
+
+        if device_authorized:
+
+            try:
+
+                customer = Customer.objects.get(
+                    user=order.user
+                )
+
+                if customer.telegram_id and Bot is not None:
+
+                    bot = Bot(
+                        token=settings.TELEGRAM_BOT_TOKEN
+                    )
+
+                    bot.send_message(
+                        chat_id=customer.telegram_id,
+                        text=(
+                            "✅ PAYMENT SUCCESSFUL\n\n"
+                            f"📦 Plan: {order.plan.name}\n"
+                            f"📶 Data: {order.plan.data}\n"
+                            f"💰 Amount: ₦{order.amount}\n\n"
+                            "🌐 Your device has been "
+                            "authorized automatically.\n\n"
+                            f"📅 Expires:\n"
+                            f"{customer.plan_expiry.strftime('%d %B %Y')}"
+                        ),
+                    )
+
+            except Exception as e:
+
+                print(
+                    "Telegram Error:",
+                    e
+                )
+
+            return render(
+                request,
+                "payments/success.html",
+                {
+                    "order": order,
+                    "voucher": voucher,
+                    "device_authorized": True,
+                    "omada_client_mac": omada_client_mac,
+                    "omada_client_ip": omada_client_ip,
+                },
+            )
+
+        # -------------------------------------------------
         # VOUCHER SUCCESSFULLY CREATED
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         if voucher_created and voucher:
 
@@ -144,19 +305,27 @@ def verify(request):
                 {
                     "order": order,
                     "voucher": voucher,
+                    "device_authorized": False,
+                    "omada_client_mac": omada_client_mac,
+                    "omada_client_ip": omada_client_ip,
                 },
             )
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # PAYMENT SUCCESSFUL
-        # BUT VOUCHER NOT YET AVAILABLE
-        # ---------------------------------------------
+        # BUT NETWORK ACCESS IS NOT AVAILABLE YET
+        # -------------------------------------------------
 
         return render(
             request,
             "payments/pending_voucher.html",
             {
                 "order": order,
+                "device_authorized": False,
+                "omada_client_mac": omada_client_mac,
+                "omada_client_ip": omada_client_ip,
+                "device_authorization_error":
+                    device_authorization_error,
             },
         )
 
@@ -202,7 +371,6 @@ def telegram_payment(request, plan_id):
     )
 
     if not request.user.is_authenticated:
-
         return JsonResponse(
             {
                 "status": False,
@@ -224,7 +392,6 @@ def telegram_payment(request, plan_id):
     )
 
     if response.get("status"):
-
         return JsonResponse(
             {
                 "status": True,
@@ -232,8 +399,7 @@ def telegram_payment(request, plan_id):
             }
         )
 
-    return JsonResponse(
-        {
-            "status": False,
-        }
-    )
+    return JsonResponse({
+        "status": False,
+    })
+

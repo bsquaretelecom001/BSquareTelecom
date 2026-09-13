@@ -6,6 +6,27 @@ from payments.models import Order
 
 def plans(request):
 
+    # Save Omada captive-portal information in the
+    # customer's session so it survives the purchase
+    # and login process.
+
+    omada_fields = [
+        "clientMac",
+        "clientIp",
+        "apMac",
+        "gatewayMac",
+        "ssidName",
+        "radioId",
+        "site",
+        "redirectUrl",
+    ]
+
+    for field in omada_fields:
+        value = request.GET.get(field)
+
+        if value:
+            request.session[f"omada_{field}"] = value
+
     daily = InternetPlan.objects.filter(
         active=True,
         plan_type="Daily",
@@ -53,4 +74,4 @@ def buy_plan(request, plan_id):
         "payment",
         order_id=order.id,
     )
-    
+
