@@ -1,30 +1,140 @@
-```django {% extends "base.html" %} {% block content %}
+{% load static %}
 
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center p-5">
-          <h2 class="fw-bold mb-3">Welcome to B Square Telecom</h2>
+<!doctype html>
 
-          <p class="text-muted mb-4">Connecting You Without Limits</p>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-          <div class="alert alert-info">
-            <strong>You're connected to B Square Wi-Fi.</strong>
-            <br />
-            Choose a data plan below to get internet access.
-          </div>
+    ```
+    <title>B Square Telecom</title>
 
-          <a
-            href="{% url 'plans' %}?clientMac={{ client_mac|urlencode }}&clientIp={{ client_ip|urlencode }}&apMac={{ ap_mac|urlencode }}&gatewayMac={{ gateway_mac|urlencode }}&ssidName={{ ssid_name|urlencode }}&radioId={{ radio_id|urlencode }}&site={{ site|urlencode }}&redirectUrl={{ redirect_url|urlencode }}"
-            class="btn btn-primary btn-lg w-100 mt-3"
-          >
-            View Data Plans
-          </a>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f5f7fa;
+        color: #212529;
+        min-height: 100vh;
+      }
+
+      .portal-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 25px;
+      }
+
+      .portal-card {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 40px 28px;
+        text-align: center;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 5px;
+      }
+
+      .brand {
+        font-size: 17px;
+        color: #555;
+        margin-bottom: 25px;
+      }
+
+      .welcome {
+        font-size: 25px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 25px;
+      }
+
+      .info-box {
+        background: #eef7ff;
+        border: 1px solid #cfe7ff;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 25px;
+        line-height: 1.6;
+      }
+
+      .info-box strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .plans-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: #0d6efd;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .plans-button:active {
+        transform: scale(0.98);
+      }
+
+      .footer {
+        margin-top: 25px;
+        font-size: 13px;
+        color: #777;
+      }
+    </style>
+    ```
+  </head>
+
+  <body>
+    <div class="portal-wrapper">
+      ```
+      <div class="portal-card">
+        <div class="logo">B Square</div>
+
+        <div class="brand">Telecom</div>
+
+        <div class="welcome">Welcome to B Square Telecom</div>
+
+        <p class="description">Connecting You Without Limits.</p>
+
+        <div class="info-box">
+          <strong>You're connected to B Square Wi-Fi.</strong>
+          Choose a data plan below to get internet access.
+        </div>
+
+        <a
+          href="{% url 'plans' %}?clientMac={{ client_mac|urlencode }}&clientIp={{ client_ip|urlencode }}&apMac={{ ap_mac|urlencode }}&gatewayMac={{ gateway_mac|urlencode }}&ssidName={{ ssid_name|urlencode }}&radioId={{ radio_id|urlencode }}&site={{ site|urlencode }}&redirectUrl={{ redirect_url|urlencode }}"
+          class="plans-button"
+        >
+          View Data Plans
+        </a>
+
+        <div class="footer">
+          © 2026 B Square Telecom<br />
+          Connecting You Without Limits
         </div>
       </div>
+      ```
     </div>
-  </div>
-</div>
-
-{% endblock %} ```
+  </body>
+</html>
