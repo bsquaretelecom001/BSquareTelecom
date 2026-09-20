@@ -2,115 +2,84 @@
 
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow">
-        <div class="card-body p-5">
+    <div class="col-md-7 col-lg-6">
+      <div class="card shadow border-0">
+        <div class="card-body p-4">
+          <!-- BRAND -->
           <div class="text-center mb-4">
-            <h1 class="fw-bold text-primary">B Square Telecom</h1>
+            <h2 class="fw-bold text-primary mb-1">B Square Telecom</h2>
 
-            <p class="text-muted">Connecting You Without Limits</p>
+            <p class="text-muted mb-0">Connecting You Without Limits</p>
 
             <hr />
 
-            <h3>PAYMENT RECEIPT</h3>
+            <h4 class="fw-bold">PAYMENT RECEIPT</h4>
           </div>
 
-          <div class="row">
-            <div class="col-md-6">
-              <h5>Customer Information</h5>
-
-              <p>
-                <strong>Name:</strong><br />
-
-                {{ request.user.first_name }} {{ request.user.last_name }}
-              </p>
-
-              <p>
-                <strong>Email:</strong><br />
-
-                {{ request.user.email }}
-              </p>
-
-              <p>
-                <strong>Phone:</strong><br />
-
-                {{ customer.phone }}
-              </p>
-            </div>
-
-            <div class="col-md-6 text-md-end">
-              <h5>Receipt Details</h5>
-
-              <p>
-                <strong>Reference</strong><br />
-
-                {{ order.reference }}
-              </p>
-
-              <p>
-                <strong>Date</strong><br />
-
-                {{ order.created_at|date:"d M Y H:i" }}
-              </p>
-
-              <p>
-                <strong>Status</strong><br />
-
-                <span class="badge bg-success"> PAID </span>
-              </p>
-            </div>
+          <!-- PAYMENT STATUS -->
+          <div class="alert alert-success text-center">
+            <strong>✓ PAYMENT SUCCESSFUL</strong>
           </div>
 
-          <hr />
+          <!-- CUSTOMER -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-uppercase text-muted">Customer</h6>
 
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Description</th>
+            <p class="mb-1">
+              <strong>Name:</strong>
+              {{ request.user.first_name }} {{ request.user.last_name }}
+            </p>
 
-                <th>Value</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td>Internet Plan</td>
-
-                <td>{{ order.plan.name }}</td>
-              </tr>
-
-              <tr>
-                <td>Data Allocation</td>
-
-                <td>{{ order.plan.data }}</td>
-              </tr>
-
-              <tr>
-                <td>Validity</td>
-
-                <td>{{ order.plan.validity }}</td>
-              </tr>
-
-              <tr>
-                <td>Amount Paid</td>
-
-                <td>
-                  <strong> ₦{{ order.amount }} </strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <hr />
-
-          <div class="text-center">
-            <h5 class="text-success">Payment Successful</h5>
-
-            <p class="text-muted">Thank you for choosing B Square Telecom.</p>
+            <p class="mb-1">
+              <strong>Phone:</strong>
+              {{ customer.phone }}
+            </p>
           </div>
 
+          <!-- PLAN -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-uppercase text-muted">Internet Plan</h6>
+
+            <p class="mb-1">
+              <strong>Plan:</strong>
+              {{ order.plan.name }}
+            </p>
+
+            <p class="mb-1">
+              <strong>Data:</strong>
+              {{ order.plan.data }}
+            </p>
+
+            <p class="mb-1">
+              <strong>Validity:</strong>
+              {{ order.plan.validity }}
+            </p>
+
+            <p class="mb-1">
+              <strong>Amount Paid:</strong>
+              ₦{{ order.amount }}
+            </p>
+          </div>
+
+          <!-- REFERENCE -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-uppercase text-muted">Payment Reference</h6>
+
+            <p class="small mb-0">{{ order.reference }}</p>
+          </div>
+
+          <!-- VOUCHER -->
+          <div class="alert alert-warning text-center">
+            <strong>Voucher Activation Pending</strong>
+
+            <p class="mb-0 mt-1">
+              Payment confirmed. Your Wi-Fi voucher will be activated manually.
+            </p>
+          </div>
+
+          <!-- BUTTONS -->
           <div class="text-center mt-4">
-            <button onclick="window.print()" class="btn btn-primary">
+            <button onclick="window.print()" class="btn btn-primary me-2">
               Print Receipt
             </button>
 
@@ -123,14 +92,26 @@
     </div>
   </div>
 </div>
-{% if voucher %}
 
-<div class="alert alert-success mt-4">
-  <h4>Your Wi-Fi Voucher</h4>
+<style>
+  @media print {
+    body {
+      background: white !important;
+    }
 
-  <h2>{{ voucher.voucher_code }}</h2>
+    nav,
+    footer,
+    .navbar,
+    .footer,
+    .btn {
+      display: none !important;
+    }
 
-  <p>Keep this voucher safe.</p>
-</div>
+    .card {
+      box-shadow: none !important;
+      border: none !important;
+    }
+  }
+</style>
 
-{% endif %} {% endblock %}
+{% endblock %}

@@ -1,25 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.conf import settings
-
-try:
-    from telegram import Bot
-except ImportError:
-    Bot = None
+from django.urls import reverse
 
 from customers.models import Customer
-from vouchers.models import Voucher
 from plans.models import InternetPlan
 
 from .models import Order
 from .paystack import initialize_payment, verify_payment
-from .tasks import generate_voucher_for_order
 
 
 @login_required
 def payment_page(request, order_id):
-
     order = get_object_or_404(
         Order,
         id=order_id,
@@ -27,7 +19,6 @@ def payment_page(request, order_id):
     )
 
     if request.method == "POST":
-
         response = initialize_payment(
             email=request.user.email,
             amount=order.amount,
@@ -54,7 +45,6 @@ def payment_page(request, order_id):
 
 
 def verify(request):
-
     reference = request.GET.get("reference")
 
     if not reference:
@@ -66,97 +56,51 @@ def verify(request):
         response.get("status")
         and response.get("data", {}).get("status") == "success"
     ):
-
         order = get_object_or_404(
             Order,
             reference=reference,
         )
 
         # Payment has been successfully confirmed.
-        # Record the payment BEFORE attempting Omada.
-        if order.status != "Paid":
-
-            order.status = "Paid"
-            order.voucher_status = "Pending"
-            order.voucher_error = ""
-
-            order.save(
-                update_fields=[
-                    "status",
-                    "voucher_status",
-                    "voucher_error",
-                ]
-            )
-
-        # Try to generate the Omada voucher.
-        voucher_created = generate_voucher_for_order(
-            order
+        # Voucher is intentionally NOT generated automatically.
+        order.status = "Paid"
+        order.voucher_status = "Pending"
+        order.voucher_error = ""
+        order.save(
+            update_fields=[
+                "status",
+                "voucher_status",
+                "voucher_error",
+            ]
         )
 
-        order.refresh_from_db()
-
-        voucher = Voucher.objects.filter(
-            order=order
-        ).first()
-
-        # ---------------------------------------------
-        # VOUCHER SUCCESSFULLY CREATED
-        # ---------------------------------------------
-
-        if voucher_created and voucher:
-
-            try:
-
-                customer = Customer.objects.get(
-                    user=order.user
-                )
-
-                if customer.telegram_id and Bot is not None:
-
-                    bot = Bot(
-                        token=settings.TELEGRAM_BOT_TOKEN
-                    )
-
-                    bot.send_message(
-                        chat_id=customer.telegram_id,
-                        text=(
-                            "✅ PAYMENT SUCCESSFUL\n\n"
-                            f"📦 Plan: {order.plan.name}\n"
-                            f"📶 Data: {order.plan.data}\n"
-                            f"💰 Amount: ₦{order.amount}\n\n"
-                            f"🎟 Voucher:\n"
-                            f"{voucher.voucher_code}\n\n"
-                            f"📅 Expires:\n"
-                            f"{customer.plan_expiry.strftime('%d %B %Y')}"
-                        ),
-                    )
-
-            except Exception as e:
-
-                print(
-                    "Telegram Error:",
-                    e
-                )
-
-            return render(
-                request,
-                "payments/success.html",
-                {
-                    "order": order,
-                    "voucher": voucher,
-                },
+        receipt_url = request.build_absolute_uri(
+            reverse(
+                "receipt",
+                args=[order.id],
             )
+        )
 
-        # ---------------------------------------------
-        # PAYMENT SUCCESSFUL
-        # BUT VOUCHER NOT YET AVAILABLE
-        # ---------------------------------------------
+        whatsapp_message = (
+            "Hello B Square Telecom 👋\n\n"
+            "I just made a payment for an internet plan.\n\n"
+            f"📦 Plan: {order.plan.name}\n"
+            f"📶 Data: {order.plan.data}\n"
+            f"📅 Validity: {order.plan.validity}\n"
+            f"💰 Amount Paid: ₦{order.amount}\n"
+            f"🔖 Reference: {order.reference}\n\n"
+            "🧾 Payment receipt:\n"
+            f"{receipt_url}\n\n"
+            "Please activate my internet voucher. Thank you."
+        )
 
         return render(
             request,
-            "payments/pending_voucher.html",
+            "payments/success.html",
             {
                 "order": order,
+                "receipt_url": receipt_url,
+                "whatsapp_message": whatsapp_message,
             },
         )
 
@@ -168,7 +112,6 @@ def verify(request):
 
 @login_required
 def receipt(request, order_id):
-
     order = get_object_or_404(
         Order,
         id=order_id,
@@ -179,30 +122,23 @@ def receipt(request, order_id):
         user=request.user,
     )
 
-    voucher = Voucher.objects.filter(
-        order=order
-    ).first()
-
     return render(
         request,
         "payments/receipt.html",
         {
             "order": order,
             "customer": customer,
-            "voucher": voucher,
         },
     )
 
 
 def telegram_payment(request, plan_id):
-
     plan = get_object_or_404(
         InternetPlan,
         id=plan_id,
     )
 
     if not request.user.is_authenticated:
-
         return JsonResponse(
             {
                 "status": False,
@@ -224,7 +160,6 @@ def telegram_payment(request, plan_id):
     )
 
     if response.get("status"):
-
         return JsonResponse(
             {
                 "status": True,
