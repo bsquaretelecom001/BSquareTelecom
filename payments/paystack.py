@@ -1,4 +1,4 @@
-import requests
+﻿import requests
 from django.conf import settings
 
 
@@ -14,7 +14,7 @@ def initialize_payment(email, amount, reference):
     callback_url = getattr(
         settings,
         "PAYSTACK_CALLBACK_URL",
-        "http://127.0.0.1:8000/payment/verify/",
+"https://bsquaretelecom.vercel.app/payment/verify/",
     )
 
     data = {
