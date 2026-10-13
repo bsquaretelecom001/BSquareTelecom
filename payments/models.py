@@ -7,7 +7,6 @@ from plans.models import InternetPlan
 
 
 class Order(models.Model):
-
     STATUS = (
         ("Pending", "Pending"),
         ("Paid", "Paid"),
@@ -20,14 +19,24 @@ class Order(models.Model):
         ("Failed", "Failed"),
     )
 
+    # Existing registered customers remain supported.
+    # New guest customers do not need an account.
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="orders",
     )
+
+    # Contact details for guest checkout and payment follow-up.
+    customer_name = models.CharField(max_length=150, blank=True, default="")
+    customer_email = models.EmailField(blank=True, default="")
+    customer_phone = models.CharField(max_length=30, blank=True, default="")
 
     plan = models.ForeignKey(
         InternetPlan,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
     )
 
     amount = models.DecimalField(
@@ -58,13 +67,12 @@ class Order(models.Model):
         default="",
     )
 
-    notification_sent = models.BooleanField(
-        default=False,
-    )
+    notification_sent = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
     def __str__(self):
         return str(self.reference)

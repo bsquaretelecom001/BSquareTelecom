@@ -1,31 +1,91 @@
 {% extends "base.html" %} {% block content %}
-
 <div class="container py-5">
-  <div class="card shadow">
-    <div class="card-body">
-      <h2>Order Summary</h2>
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <h2 class="fw-bold mb-2">Complete Your Purchase</h2>
+          <p class="text-muted">
+            Enter your contact details and continue to secure payment.
+          </p>
 
-      <hr />
+          <hr />
 
-      <p><strong>Plan:</strong> {{ order.plan.name }}</p>
+          <div class="bg-light rounded-3 p-3 mb-4">
+            <h5 class="fw-bold">{{ order.plan.name }}</h5>
+            <p class="mb-1"><strong>Data:</strong> {{ order.plan.data }}</p>
+            <p class="mb-1">
+              <strong>Validity:</strong> {{ order.plan.validity }}
+            </p>
+            <h3 class="text-primary fw-bold mt-3">₦{{ order.amount }}</h3>
+          </div>
 
-      <p><strong>Data:</strong> {{ order.plan.data }}</p>
+          {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
 
-      <p><strong>Validity:</strong> {{ order.plan.validity }}</p>
+          <form method="POST" action="?token={{ request.GET.token|urlencode }}">
+            {% csrf_token %}
 
-      <p><strong>Amount:</strong> ₦{{ order.amount }}</p>
+            <div class="mb-3">
+              <label for="customer_name" class="form-label">Full Name</label>
+              <input
+                type="text"
+                id="customer_name"
+                name="customer_name"
+                class="form-control form-control-lg"
+                value="{{ order.customer_name }}"
+                maxlength="150"
+                autocomplete="name"
+                required
+              />
+            </div>
 
-      <p><strong>Reference:</strong> {{ order.reference }}</p>
+            <div class="mb-3">
+              <label for="customer_email" class="form-label"
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="customer_email"
+                name="customer_email"
+                class="form-control form-control-lg"
+                value="{{ order.customer_email }}"
+                autocomplete="email"
+                required
+              />
+              <small class="text-muted">
+                Enter an email address you can access.
+              </small>
+            </div>
 
-      <form method="POST">
-        {% csrf_token %}
+            <div class="mb-4">
+              <label for="customer_phone" class="form-label"
+                >Phone Number</label
+              >
+              <input
+                type="tel"
+                id="customer_phone"
+                name="customer_phone"
+                class="form-control form-control-lg"
+                value="{{ order.customer_phone }}"
+                maxlength="30"
+                autocomplete="tel"
+                required
+              />
+            </div>
 
-        <button type="submit" class="btn btn-success btn-lg w-100">
-          Pay Now
-        </button>
-      </form>
+            <button type="submit" class="btn btn-success btn-lg w-100">
+              Continue to Paystack
+            </button>
+          </form>
+
+          <p class="text-muted text-center small mt-3 mb-0">
+            No account or password required.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
 {% endblock %}

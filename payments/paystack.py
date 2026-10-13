@@ -2,19 +2,21 @@
 from django.conf import settings
 
 
+PAYSTACK_BASE_URL = "https://api.paystack.co"
+
+
 def initialize_payment(email, amount, reference):
-    url = "https://api.paystack.co/transaction/initialize"
+    url = f"{PAYSTACK_BASE_URL}/transaction/initialize"
 
     headers = {
         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
     }
 
-    # Use local callback during development.
-    # Use Vercel callback in production.
     callback_url = getattr(
         settings,
         "PAYSTACK_CALLBACK_URL",
-"https://bsquaretelecom.vercel.app/payment/verify/",
+        "https://bsquaretelecom.vercel.app/payment/verify/",
     )
 
     data = {
@@ -24,25 +26,41 @@ def initialize_payment(email, amount, reference):
         "callback_url": callback_url,
     }
 
-    response = requests.post(
-        url,
-        json=data,
-        headers=headers,
-    )
+    try:
+        response = requests.post(
+            url,
+            json=data,
+            headers=headers,
+            timeout=20,
+        )
+        response.raise_for_status()
+        return response.json()
 
-    return response.json()
+    except (requests.RequestException, ValueError):
+        return {
+            "status": False,
+            "message": "Unable to initialize payment with Paystack.",
+        }
 
 
 def verify_payment(reference):
-    url = f"https://api.paystack.co/transaction/verify/{reference}"
+    url = f"{PAYSTACK_BASE_URL}/transaction/verify/{reference}"
 
     headers = {
         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
     }
 
-    response = requests.get(
-        url,
-        headers=headers,
-    )
+    try:
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=20,
+        )
+        response.raise_for_status()
+        return response.json()
 
-    return response.json()
+    except (requests.RequestException, ValueError):
+        return {
+            "status": False,
+            "message": "Unable to verify payment with Paystack.",
+        }

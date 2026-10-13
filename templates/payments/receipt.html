@@ -1,90 +1,82 @@
 {% extends "base.html" %} {% block content %}
-
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-      <div class="card shadow border-0">
-        <div class="card-body p-4">
-          <!-- BRAND -->
+    <div class="col-md-8 col-lg-7">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
           <div class="text-center mb-4">
             <h2 class="fw-bold text-primary mb-1">B Square Telecom</h2>
-
             <p class="text-muted mb-0">Connecting You Without Limits</p>
-
             <hr />
-
-            <h4 class="fw-bold">PAYMENT RECEIPT</h4>
+            <h4 class="fw-bold mt-4">PAYMENT RECEIPT</h4>
           </div>
 
-          <!-- PAYMENT STATUS -->
           <div class="alert alert-success text-center">
-            <strong>✓ PAYMENT SUCCESSFUL</strong>
+            <h5 class="fw-bold mb-1">PAYMENT SUCCESSFUL</h5>
+            <p class="mb-0">Your payment has been verified.</p>
           </div>
 
-          <!-- CUSTOMER -->
           <div class="mb-4">
-            <h6 class="fw-bold text-uppercase text-muted">Customer</h6>
-
-            <p class="mb-1">
-              <strong>Name:</strong>
-              {{ request.user.first_name }} {{ request.user.last_name }}
+            <h6 class="fw-bold text-uppercase text-muted">Customer Details</h6>
+            <p class="mb-2">
+              <strong>Name:</strong> {{ order.customer_name|default:"Customer"
+              }}
             </p>
-
-            <p class="mb-1">
-              <strong>Phone:</strong>
-              {{ customer.phone }}
+            <p class="mb-2">
+              <strong>Email:</strong> {{ order.customer_email|default:"Not
+              provided" }}
+            </p>
+            <p class="mb-2">
+              <strong>Phone:</strong> {{ order.customer_phone|default:"Not
+              provided" }}
             </p>
           </div>
 
-          <!-- PLAN -->
+          <hr />
+
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Internet Plan</h6>
-
-            <p class="mb-1">
-              <strong>Plan:</strong>
-              {{ order.plan.name }}
+            <p class="mb-2"><strong>Plan:</strong> {{ order.plan.name }}</p>
+            <p class="mb-2"><strong>Data:</strong> {{ order.plan.data }}</p>
+            <p class="mb-2">
+              <strong>Validity:</strong> {{ order.plan.validity }}
             </p>
-
-            <p class="mb-1">
-              <strong>Data:</strong>
-              {{ order.plan.data }}
-            </p>
-
-            <p class="mb-1">
-              <strong>Validity:</strong>
-              {{ order.plan.validity }}
-            </p>
-
-            <p class="mb-1">
-              <strong>Amount Paid:</strong>
-              ₦{{ order.amount }}
+            <p class="mb-2">
+              <strong>Amount Paid:</strong> ₦{{ order.amount }}
             </p>
           </div>
 
-          <!-- REFERENCE -->
+          <hr />
+
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Payment Reference</h6>
-
-            <p class="small mb-0">{{ order.reference }}</p>
+            <p class="small text-break mb-0">{{ order.reference }}</p>
           </div>
 
-          <!-- VOUCHER -->
           <div class="alert alert-warning text-center">
-            <strong>Voucher Activation Pending</strong>
-
-            <p class="mb-0 mt-1">
-              Payment confirmed. Your Wi-Fi voucher will be activated manually.
+            <h6 class="fw-bold">Voucher Activation Pending</h6>
+            <p class="mb-0">
+              Your payment is confirmed. Contact us on WhatsApp to receive your
+              internet voucher.
             </p>
           </div>
 
-          <!-- BUTTONS -->
-          <div class="text-center mt-4">
-            <button onclick="window.print()" class="btn btn-primary me-2">
+          <div class="d-grid gap-3 mt-4">
+            <button onclick="window.print()" class="btn btn-primary btn-lg">
               Print Receipt
             </button>
 
-            <a href="{% url 'dashboard' %}" class="btn btn-success">
-              Dashboard
+            <a
+              href="https://wa.me/2348121302528"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-success btn-lg"
+            >
+              Contact Us on WhatsApp
+            </a>
+
+            <a href="{% url 'plans' %}" class="btn btn-outline-secondary">
+              Back to Plans
             </a>
           </div>
         </div>
@@ -98,7 +90,6 @@
     body {
       background: white !important;
     }
-
     nav,
     footer,
     .navbar,
@@ -106,12 +97,10 @@
     .btn {
       display: none !important;
     }
-
     .card {
       box-shadow: none !important;
       border: none !important;
     }
   }
 </style>
-
 {% endblock %}

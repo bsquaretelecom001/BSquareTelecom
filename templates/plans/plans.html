@@ -1,183 +1,60 @@
 {% extends "base.html" %} {% block content %}
 
-<section class="hero py-5 text-center">
-  <div class="container">
-    <h1 class="fw-bold">Choose Your Internet Plan</h1>
-    <p class="lead text-muted">
+<section class="plans-heading">
+  <div class="container text-center">
+    <h1>Choose Your Internet Plan</h1>
+    <p>
       Fast, reliable and affordable internet for students, homes and businesses.
     </p>
   </div>
 </section>
 
-<div class="container pb-5">
-  <!-- DAILY -->
+<div class="container plans-container">
+  {% for group, heading in plan_groups %}
+  <section class="plan-section">
+    <h2 class="plan-section-title">{{ heading }}</h2>
 
-  <h2 class="fw-bold mb-4">Daily Plans</h2>
+    <div class="row g-3">
+      {% for plan in group %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <article class="plan-card {% if plan.popular %}is-popular{% endif %}">
+          <div class="plan-card-top">
+            <div class="plan-info">
+              <h3>{{ plan.name }}</h3>
+              <p>{{ plan.data }} <span>•</span> {{ plan.validity }}</p>
+            </div>
 
-  <div class="row g-4">
-    {% for plan in daily %}
-
-    <div class="col-lg-4 col-md-6">
-      <div class="card shadow-lg border-0 rounded-4 h-100 position-relative">
-        {% if plan.popular %}
-        <span
-          class="badge bg-danger position-absolute top-0 start-50 translate-middle px-3 py-2"
-        >
-          ⭐ Most Popular
-        </span>
-        {% endif %}
-
-        <div class="card-body text-center p-4">
-          <span class="badge bg-primary mb-3"> {{ plan.plan_type }} </span>
-
-          <h3 class="fw-bold">{{ plan.name }}</h3>
-
-          <h1 class="display-5 fw-bold text-primary">₦{{ plan.price }}</h1>
-
-          <h5 class="text-muted">{{ plan.data }}</h5>
-
-          <p>{{ plan.validity }}</p>
+            <div class="plan-price">
+              <strong>₦{{ plan.price|floatformat:0 }}</strong>
+              <span>{{ plan.plan_type }}</span>
+            </div>
+          </div>
 
           {% if plan.description %}
-          <p class="text-muted">{{ plan.description }}</p>
+          <p class="plan-description">{{ plan.description }}</p>
+          {% endif %} {% if plan.popular %}
+          <span class="plan-popular-label">★ Most Popular</span>
           {% endif %}
-
-          <hr />
-
-          <p>✔ High Speed Internet</p>
-          <p>✔ Stable Connection</p>
-          <p>✔ 24/7 Customer Support</p>
 
           <a
             href="{% url 'buy_plan' plan.id %}"
-            class="btn btn-primary w-100 rounded-pill"
+            class="btn btn-primary plan-buy-button"
           >
             Buy Now
           </a>
-        </div>
+        </article>
       </div>
-    </div>
-
-    {% empty %}
-
-    <p>No Daily Plans Available.</p>
-
-    {% endfor %}
-  </div>
-
-  <hr class="my-5" />
-
-  <!-- WEEKLY -->
-
-  <h2 class="fw-bold mb-4">Weekly Plans</h2>
-
-  <div class="row g-4">
-    {% for plan in weekly %}
-
-    <div class="col-lg-4 col-md-6">
-      <div class="card shadow-lg border-0 rounded-4 h-100 position-relative">
-        {% if plan.popular %}
-        <span
-          class="badge bg-danger position-absolute top-0 start-50 translate-middle px-3 py-2"
-        >
-          ⭐ Most Popular
-        </span>
-        {% endif %}
-
-        <div class="card-body text-center p-4">
-          <span class="badge bg-success mb-3"> {{ plan.plan_type }} </span>
-
-          <h3 class="fw-bold">{{ plan.name }}</h3>
-
-          <h1 class="display-5 fw-bold text-success">₦{{ plan.price }}</h1>
-
-          <h5 class="text-muted">{{ plan.data }}</h5>
-
-          <p>{{ plan.validity }}</p>
-
-          {% if plan.description %}
-          <p class="text-muted">{{ plan.description }}</p>
-          {% endif %}
-
-          <hr />
-
-          <p>✔ High Speed Internet</p>
-          <p>✔ Stable Connection</p>
-          <p>✔ 24/7 Customer Support</p>
-
-          <a
-            href="{% url 'buy_plan' plan.id %}"
-            class="btn btn-success w-100 rounded-pill"
-          >
-            Buy Now
-          </a>
-        </div>
+      {% empty %}
+      <div class="col-12">
+        <p class="text-muted">
+          No {{ heading|lower }} available at the moment.
+        </p>
       </div>
+      {% endfor %}
     </div>
+  </section>
 
-    {% empty %}
-
-    <p>No Weekly Plans Available.</p>
-
-    {% endfor %}
-  </div>
-
-  <hr class="my-5" />
-
-  <!-- MONTHLY -->
-
-  <h2 class="fw-bold mb-4">Monthly Plans</h2>
-
-  <div class="row g-4">
-    {% for plan in monthly %}
-
-    <div class="col-lg-4 col-md-6">
-      <div class="card shadow-lg border-0 rounded-4 h-100 position-relative">
-        {% if plan.popular %}
-        <span
-          class="badge bg-danger position-absolute top-0 start-50 translate-middle px-3 py-2"
-        >
-          ⭐ Most Popular
-        </span>
-        {% endif %}
-
-        <div class="card-body text-center p-4">
-          <span class="badge bg-dark mb-3"> {{ plan.plan_type }} </span>
-
-          <h3 class="fw-bold">{{ plan.name }}</h3>
-
-          <h1 class="display-5 fw-bold text-primary">₦{{ plan.price }}</h1>
-
-          <h5 class="text-muted">{{ plan.data }}</h5>
-
-          <p>{{ plan.validity }}</p>
-
-          {% if plan.description %}
-          <p class="text-muted">{{ plan.description }}</p>
-          {% endif %}
-
-          <hr />
-
-          <p>✔ Unlimited Streaming</p>
-          <p>✔ Low Latency Gaming</p>
-          <p>✔ Priority Support</p>
-
-          <a
-            href="{% url 'buy_plan' plan.id %}"
-            class="btn btn-primary w-100 rounded-pill"
-          >
-            Buy Now
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {% empty %}
-
-    <p>No Monthly Plans Available.</p>
-
-    {% endfor %}
-  </div>
+  {% endfor %}
 </div>
 
 {% endblock %}

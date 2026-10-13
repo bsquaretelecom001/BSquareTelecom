@@ -210,3 +210,7 @@ OMADA_SITE_ID = os.getenv(
     "OMADA_SITE_ID",
     "6a9c8e2d6d8c5508c79089e4",
 )
+PAYSTACK_CALLBACK_URL = os.getenv(
+    "PAYSTACK_CALLBACK_URL",
+    "https://bsquaretelecom.vercel.app/payment/verify/",
+)
