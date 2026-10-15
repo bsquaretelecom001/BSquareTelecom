@@ -4,6 +4,7 @@
     <div class="col-md-8 col-lg-7">
       <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4 p-md-5">
+          <!-- Receipt Header -->
           <div class="text-center mb-4">
             <h2 class="fw-bold text-primary mb-1">B Square Telecom</h2>
             <p class="text-muted mb-0">Connecting You Without Limits</p>
@@ -11,11 +12,13 @@
             <h4 class="fw-bold mt-4">PAYMENT RECEIPT</h4>
           </div>
 
+          <!-- Payment Status -->
           <div class="alert alert-success text-center">
             <h5 class="fw-bold mb-1">PAYMENT SUCCESSFUL</h5>
             <p class="mb-0">Your payment has been verified.</p>
           </div>
 
+          <!-- Customer Details -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Customer Details</h6>
             <p class="mb-2">
@@ -34,6 +37,7 @@
 
           <hr />
 
+          <!-- Internet Plan -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Internet Plan</h6>
             <p class="mb-2"><strong>Plan:</strong> {{ order.plan.name }}</p>
@@ -48,11 +52,13 @@
 
           <hr />
 
+          <!-- Payment Reference -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Payment Reference</h6>
             <p class="small text-break mb-0">{{ order.reference }}</p>
           </div>
 
+          <!-- Voucher Activation -->
           <div class="alert alert-warning text-center">
             <h6 class="fw-bold">Voucher Activation Pending</h6>
             <p class="mb-0">
@@ -61,6 +67,7 @@
             </p>
           </div>
 
+          <!-- Receipt Actions -->
           <div class="d-grid gap-3 mt-4">
             <button onclick="window.print()" class="btn btn-primary btn-lg">
               Print Receipt
@@ -90,6 +97,7 @@
     body {
       background: white !important;
     }
+
     nav,
     footer,
     .navbar,
@@ -97,6 +105,7 @@
     .btn {
       display: none !important;
     }
+
     .card {
       box-shadow: none !important;
       border: none !important;
