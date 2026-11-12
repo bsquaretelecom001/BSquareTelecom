@@ -1,0 +1,63 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Refund Policy | B Square Telecom{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <h1 class="mb-3">Refund Policy</h1>
+      <p><strong>Last updated:</strong> 12 November 2026</p>
+
+      <p>
+        This policy explains how B Square Telecom handles payment issues,
+        internet access problems and refund requests.
+      </p>
+
+      <h4>1. Successful Payment but No Access Code</h4>
+      <p>
+        If your payment is successful but you do not receive your internet
+        access code, contact us with your payment reference and phone number.
+        We will investigate and resolve the issue.
+      </p>
+
+      <h4>2. Duplicate Payments</h4>
+      <p>
+        If you are charged more than once for the same purchase, contact us with
+        the relevant transaction references. Verified duplicate payments will be
+        reviewed for correction or refund.
+      </p>
+
+      <h4>3. Activated Internet Plans</h4>
+      <p>
+        Once an access code has been issued and used, or the purchased internet
+        service has been consumed, the purchase is generally non-refundable,
+        except where required by applicable law or approved after investigation.
+      </p>
+
+      <h4>4. Service Interruptions</h4>
+      <p>
+        If a network interruption prevents you from using a purchased plan,
+        contact us. We will review the issue and determine an appropriate
+        resolution.
+      </p>
+
+      <h4>5. How to Request a Refund</h4>
+      <p>
+        Contact us through our
+        <a href="{% url 'contact' %}">Contact Page</a>
+        or WhatsApp at
+        <a href="https://wa.me/2348121302528">+234 812 130 2528</a>.
+        Include your payment reference and phone number.
+      </p>
+
+      <h4>6. Approved Refunds</h4>
+      <p>
+        Approved refunds will normally be processed through the original payment
+        method where possible. Processing time may depend on the payment
+        provider or financial institution.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

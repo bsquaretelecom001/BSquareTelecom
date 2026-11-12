@@ -15,11 +15,9 @@ def coverage(request):
 
 
 def contact(request):
-
     contact_info = ContactInfo.objects.first()
 
     if request.method == "POST":
-
         name = request.POST["name"]
         email = request.POST["email"]
         message = request.POST["message"]
@@ -43,3 +41,18 @@ def contact(request):
             "contact_info": contact_info,
         },
     )
+
+
+# PRIVACY POLICY
+def privacy_policy(request):
+    return render(request, "policies/privacy_policy.html")
+
+
+# TERMS AND CONDITIONS
+def terms_and_conditions(request):
+    return render(request, "policies/terms_and_conditions.html")
+
+
+# REFUND POLICY
+def refund_policy(request):
+    return render(request, "policies/refund_policy.html")
