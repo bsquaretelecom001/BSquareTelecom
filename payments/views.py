@@ -55,6 +55,8 @@ def payment_page(request, order_id):
         return redirect("plans")
 
     error = ""
+    details_saved = False
+    whatsapp_url = ""
 
     if request.method == "POST":
         name = request.POST.get("customer_name", "").strip()
@@ -63,8 +65,10 @@ def payment_page(request, order_id):
 
         if not name or not email or not phone:
             error = "Please enter your name, email address, and phone number."
+
         elif order.status != "Pending":
             error = "This order can no longer be paid. Please select a plan again."
+
         else:
             order.customer_name = name
             order.customer_email = email
@@ -82,24 +86,27 @@ def payment_page(request, order_id):
                 ]
             )
 
-            try:
-                response = initialize_payment(
-                    email=email,
-                    amount=order.amount,
-                    reference=order.reference,
-                )
-            except Exception:
-                response = {}
-
-            if response.get("status") and response.get("data", {}).get(
-                "authorization_url"
-            ):
-                return redirect(response["data"]["authorization_url"])
-
-            error = (
-                "We couldn't start your payment. Please try again. "
-                "If the problem continues, contact B Square Telecom."
+            whatsapp_message = (
+                "Hello B Square Telecom!\n\n"
+                "I have made a bank transfer for my internet plan.\n\n"
+                f"Name: {order.customer_name}\n"
+                f"Phone: {order.customer_phone}\n"
+                f"Email: {order.customer_email}\n"
+                f"Plan: {order.plan.name}\n"
+                f"Data: {order.plan.data}\n"
+                f"Validity: {order.plan.validity}\n"
+                f"Amount: NGN {order.amount}\n"
+                f"Order Reference: {order.reference}\n\n"
+                "I have attached a screenshot of my bank transfer receipt.\n"
+                "Please verify my payment and send my internet access code. Thank you!"
             )
+
+            whatsapp_url = (
+                "https://wa.me/2348121302528?"
+                + urlencode({"text": whatsapp_message})
+            )
+
+            details_saved = True
 
     return render(
         request,
@@ -107,6 +114,8 @@ def payment_page(request, order_id):
         {
             "order": order,
             "error": error,
+            "details_saved": details_saved,
+            "whatsapp_url": whatsapp_url,
         },
     )
 

@@ -1,28 +1,33 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block title %}Complete Your Purchase | B Square
+Telecom{% endblock %} {% block content %}
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
+    <div class="col-lg-7">
       <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4 p-md-5">
           <h2 class="fw-bold mb-2">Complete Your Purchase</h2>
           <p class="text-muted">
-            Enter your contact details and continue to secure payment.
+            Enter your details and follow the instructions to activate your
+            internet plan.
           </p>
 
           <hr />
 
           <div class="bg-light rounded-3 p-3 mb-4">
             <h5 class="fw-bold">{{ order.plan.name }}</h5>
+
             <p class="mb-1"><strong>Data:</strong> {{ order.plan.data }}</p>
+
             <p class="mb-1">
               <strong>Validity:</strong> {{ order.plan.validity }}
             </p>
+
             <h3 class="text-primary fw-bold mt-3">₦{{ order.amount }}</h3>
           </div>
 
           {% if error %}
           <div class="alert alert-danger">{{ error }}</div>
-          {% endif %}
+          {% endif %} {% if not details_saved %}
 
           <form method="POST" action="?token={{ request.GET.token|urlencode }}">
             {% csrf_token %}
@@ -54,9 +59,6 @@
                 autocomplete="email"
                 required
               />
-              <small class="text-muted">
-                Enter an email address you can access.
-              </small>
             </div>
 
             <div class="mb-4">
@@ -76,12 +78,83 @@
             </div>
 
             <button type="submit" class="btn btn-success btn-lg w-100">
-              Continue to Paystack
+              Continue to Payment
             </button>
           </form>
 
-          <p class="text-muted text-center small mt-3 mb-0">
-            No account or password required.
+          {% else %}
+
+          <div class="alert alert-info rounded-3">
+            <strong>Paystack temporarily unavailable.</strong><br />
+            We are currently completing our payment verification. Please use
+            bank transfer for now.
+          </div>
+
+          <div class="border rounded-4 p-4 mb-4">
+            <h4 class="fw-bold mb-3">Bank Transfer Details</h4>
+
+            <p class="mb-2"><strong>Bank Name:</strong> Moniepoint</p>
+
+            <p class="mb-2">
+              <strong>Account Name:</strong> Ezeji Chiderah Gabriel
+            </p>
+
+            <div class="bg-light rounded-3 p-3 mt-3">
+              <small class="text-muted">Account Number</small>
+              <h3 class="fw-bold mb-0">5732129882</h3>
+            </div>
+
+            <div class="bg-light rounded-3 p-3 mt-3">
+              <small class="text-muted">Amount to Transfer</small>
+              <h3 class="fw-bold text-success mb-0">₦{{ order.amount }}</h3>
+            </div>
+
+            <p class="text-danger small mt-3 mb-0">
+              Please transfer the exact amount displayed above.
+            </p>
+          </div>
+
+          <div class="alert alert-warning rounded-3">
+            <h5 class="fw-bold">Important: After Making Payment</h5>
+
+            <ol class="mb-0 ps-3">
+              <li>Complete your bank transfer to the account above.</li>
+              <li>Click the WhatsApp button below.</li>
+              <li>
+                WhatsApp will open with your purchase details already prepared.
+              </li>
+              <li>
+                Attach a screenshot of your bank transfer receipt to the
+                message.
+              </li>
+              <li>
+                Send the message and wait for payment confirmation and your
+                internet access code.
+              </li>
+            </ol>
+          </div>
+
+          <a
+            href="{{ whatsapp_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-success btn-lg w-100 py-3"
+          >
+            <i class="bi bi-whatsapp me-2"></i>
+            I've Made Payment – Send WhatsApp
+          </a>
+
+          <p class="text-muted text-center small mt-3">
+            Your payment will be manually verified before your internet access
+            code is issued. Remember to attach your transfer receipt.
+          </p>
+
+          {% endif %}
+
+          <hr />
+
+          <p class="text-muted text-center small mb-0">
+            B Square Telecom – Connecting You Without Limits.
           </p>
         </div>
       </div>
