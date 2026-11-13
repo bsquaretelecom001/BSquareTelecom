@@ -102,7 +102,7 @@ def payment_page(request, order_id):
             )
 
             whatsapp_url = (
-                "https://wa.me/2348121302528?"
+                "https://wa.me/2349113724631?"
                 + urlencode({"text": whatsapp_message})
             )
 
