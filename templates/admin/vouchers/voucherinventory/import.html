@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %} {% block content %}
+
+<div class="module" style="max-width: 650px; padding: 25px">
+  <h2>Import Omada Voucher Codes</h2>
+
+  <p>
+    Select the internet plan and upload your CSV file containing the
+    pre-generated Omada voucher codes.
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %} {{ form.as_p }}
+
+    <div style="margin-top: 25px">
+      <input type="submit" value="Import Vouchers" class="default" />
+
+      <a
+        href="{% url 'admin:vouchers_voucherinventory_changelist' %}"
+        class="button"
+      >
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

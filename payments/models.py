@@ -76,3 +76,15 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.reference)
+
+
+class VoucherAccessOTP(models.Model):
+    email = models.EmailField(db_index=True)
+    code_hash = models.CharField(max_length=255)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Voucher access OTP for {self.email}"

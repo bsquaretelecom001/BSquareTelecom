@@ -1,165 +1,190 @@
+﻿import re
 from datetime import timedelta
 
+from django.db import transaction
 from django.utils import timezone
 
 from customers.models import Customer
-from vouchers.models import Voucher
-from hotspot.omada import OmadaAPI
+from vouchers.models import Voucher, VoucherInventory
 
 from .models import Order
+from vouchers.notifications import check_voucher_stock
+
+
+def get_plan_duration(validity):
+    validity = str(validity).strip().lower()
+
+    match = re.search(r"(\d+)\s*(days?|weeks?|months?)\b", validity)
+
+    if match:
+        amount = int(match.group(1))
+        unit = match.group(2)
+
+        if unit.startswith("week"):
+            return amount * 7
+
+        if unit.startswith("month"):
+            return amount * 30
+
+        return amount
+
+    if "week" in validity:
+        return 7
+
+    if "month" in validity:
+        return 30
+
+    if "day" in validity or "daily" in validity:
+        return 1
+
+    return 30
+
 
 def generate_voucher_for_order(order):
-    """
-    Try to generate an Omada voucher for a paid order.
-    """
+    try:
+        with transaction.atomic():
 
-    # Don't create another voucher if one already exists.
-    existing_voucher = Voucher.objects.filter(
-        order=order
-    ).first()
+            locked_order = (
+                Order.objects
+                .select_for_update()
+                .select_related("plan")
+                .get(pk=order.pk)
+            )
 
-    if existing_voucher:
+            if locked_order.status != "Paid":
+                raise Exception("Order has not been paid.")
 
-        if order.voucher_status != "Created":
-            order.voucher_status = "Created"
-            order.voucher_error = ""
+            existing_voucher = Voucher.objects.filter(
+                order=locked_order
+            ).first()
 
-            order.save(
+            if existing_voucher:
+                locked_order.voucher_status = "Created"
+                locked_order.voucher_error = ""
+                locked_order.save(
+                    update_fields=["voucher_status", "voucher_error"]
+                )
+                transaction.on_commit(
+    lambda: check_voucher_stock(locked_order.plan)
+)
+                return True
+
+            inventory_voucher = VoucherInventory.objects.filter(
+                assigned_order=locked_order
+            ).first()
+
+            if not inventory_voucher:
+                inventory_voucher = (
+                    VoucherInventory.objects
+                    .select_for_update()
+                    .filter(
+                        plan=locked_order.plan,
+                        status="Available"
+                    )
+                    .order_by("imported_at", "id")
+                    .first()
+                )
+
+            if not inventory_voucher:
+                raise Exception(
+                    f"No available vouchers for {locked_order.plan.name}."
+                )
+
+            now = timezone.now()
+            customer = None
+
+            if locked_order.user_id:
+                customer = Customer.objects.filter(
+                    user_id=locked_order.user_id
+                ).first()
+
+            start_date = now
+
+            if (
+                customer
+                and customer.active_plan
+                and customer.plan_expiry
+                and customer.plan_expiry > now
+            ):
+                start_date = customer.plan_expiry
+
+            duration_days = get_plan_duration(
+                locked_order.plan.validity
+            )
+
+            expiry = start_date + timedelta(days=duration_days)
+
+            inventory_voucher.status = "Issued"
+            inventory_voucher.assigned_order = locked_order
+            inventory_voucher.issued_at = now
+            inventory_voucher.save(
                 update_fields=[
-                    "voucher_status",
-                    "voucher_error",
+                    "status",
+                    "assigned_order",
+                    "issued_at"
                 ]
             )
 
-        return True
-
-    try:
-
-        customer = Customer.objects.get(
-            user=order.user
-        )
-
-        now = timezone.now()
-
-        if (
-            customer.active_plan
-            and customer.plan_expiry
-            and customer.plan_expiry > now
-        ):
-            start_date = customer.plan_expiry
-        else:
-            start_date = now
-
-        validity = order.plan.validity.lower()
-
-        if "daily" in validity or "day" in validity:
-            expiry = start_date + timedelta(days=1)
-
-        elif "week" in validity:
-            expiry = start_date + timedelta(days=7)
-
-        else:
-            expiry = start_date + timedelta(days=30)
-
-        omada = OmadaAPI()
-
-        omada_result = omada.activate_customer(
-            customer,
-            order.plan,
-        )
-
-        if not omada_result.get("status"):
-            raise Exception(
-                "Omada did not return a successful voucher result."
+            Voucher.objects.create(
+                customer=customer,
+                order=locked_order,
+                voucher_code=inventory_voucher.voucher_code,
+                plan_name=locked_order.plan.name,
+                data=locked_order.plan.data,
+                device_limit=20,
+                expires_at=expiry,
             )
 
-        voucher_code = omada_result.get(
-            "voucher_code"
-        )
+            if customer:
+                customer.active_plan = True
+                customer.plan_start = now
+                customer.plan_expiry = expiry
+                customer.data_balance = locked_order.plan.data
+                customer.save()
 
-        if not voucher_code:
-            raise Exception(
-                "Omada created no voucher code."
+            locked_order.voucher_status = "Created"
+            locked_order.voucher_error = ""
+            locked_order.save(
+                update_fields=["voucher_status", "voucher_error"]
             )
 
-        Voucher.objects.create(
-            customer=customer,
-            order=order,
-            voucher_code=voucher_code,
-            plan_name=order.plan.name,
-            data=order.plan.data,
-            device_limit=20,
-            expires_at=expiry,
-        )
+            print(
+                f"Voucher assigned to order {locked_order.reference}: "
+                f"{inventory_voucher.voucher_code}"
+            )
 
-        customer.active_plan = True
-        customer.plan_start = now
-        customer.plan_expiry = expiry
-        customer.data_balance = order.plan.data
-
-        customer.save()
-
-        order.voucher_status = "Created"
-        order.voucher_error = ""
-
-        order.save(
-            update_fields=[
-                "voucher_status",
-                "voucher_error",
-            ]
-        )
-
-        print(
-            f"Voucher successfully generated for order "
-            f"{order.reference}: {voucher_code}"
-        )
-
-        return True
+            return True
 
     except Exception as e:
-
         print(
-            f"Voucher generation failed for order "
+            f"Voucher allocation failed for order "
             f"{order.reference}: {e}"
         )
 
-        order.voucher_status = "Failed"
-        order.voucher_error = str(e)
-
-        order.save(
-            update_fields=[
-                "voucher_status",
-                "voucher_error",
-            ]
+        Order.objects.filter(pk=order.pk).update(
+            voucher_status="Failed",
+            voucher_error=str(e),
         )
 
         return False
 
 
 def retry_failed_vouchers():
-    """
-    Retry voucher generation for payments that succeeded
-    but whose Omada voucher could not be created.
-    """
-
     failed_orders = Order.objects.filter(
         status="Paid",
-        voucher_status="Failed",
+        voucher_status="Failed"
     )
 
     results = {
         "attempted": 0,
         "successful": 0,
-        "failed": 0,
+        "failed": 0
     }
 
     for order in failed_orders:
-
         results["attempted"] += 1
 
-        success = generate_voucher_for_order(
-            order
-        )
+        success = generate_voucher_for_order(order)
 
         if success:
             results["successful"] += 1

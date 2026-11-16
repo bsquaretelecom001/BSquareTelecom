@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block content %}
+
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-7">
@@ -21,17 +22,20 @@
           <!-- Customer Details -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Customer Details</h6>
+
             <p class="mb-2">
-              <strong>Name:</strong> {{ order.customer_name|default:"Customer"
-              }}
+              <strong>Name:</strong>
+              {{ order.customer_name|default:"Customer" }}
             </p>
+
             <p class="mb-2">
-              <strong>Email:</strong> {{ order.customer_email|default:"Not
-              provided" }}
+              <strong>Email:</strong>
+              {{ order.customer_email|default:"Not provided" }}
             </p>
+
             <p class="mb-2">
-              <strong>Phone:</strong> {{ order.customer_phone|default:"Not
-              provided" }}
+              <strong>Phone:</strong>
+              {{ order.customer_phone|default:"Not provided" }}
             </p>
           </div>
 
@@ -40,6 +44,7 @@
           <!-- Internet Plan -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Internet Plan</h6>
+
             <p class="mb-2"><strong>Plan:</strong> {{ order.plan.name }}</p>
             <p class="mb-2"><strong>Data:</strong> {{ order.plan.data }}</p>
             <p class="mb-2">
@@ -52,19 +57,53 @@
 
           <hr />
 
+          <!-- Wi-Fi Voucher -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-uppercase text-muted">
+              Internet Access Details
+            </h6>
+
+            {% if order.voucher %}
+
+            <div
+              class="border border-primary rounded-3 p-4 text-center"
+              style="background: #f0f6ff"
+            >
+              <p class="fw-bold text-primary mb-2">YOUR WI-FI VOUCHER CODE</p>
+
+              <h2
+                class="fw-bold text-dark mb-3"
+                style="letter-spacing: 6px; word-break: break-word"
+              >
+                {{ order.voucher.voucher_code }}
+              </h2>
+
+              <p class="small text-muted mb-0">
+                Use this code to connect to B Square Telecom Wi-Fi.
+              </p>
+            </div>
+
+            {% else %}
+
+            <div class="alert alert-warning text-center">
+              <h6 class="fw-bold">Voucher Processing</h6>
+              <p class="mb-0">
+                Your payment has been confirmed. Your internet access code is
+                still being processed. Please contact our support team if it
+                does not become available shortly.
+              </p>
+            </div>
+
+            {% endif %}
+          </div>
+
+          <hr />
+
           <!-- Payment Reference -->
           <div class="mb-4">
             <h6 class="fw-bold text-uppercase text-muted">Payment Reference</h6>
-            <p class="small text-break mb-0">{{ order.reference }}</p>
-          </div>
 
-          <!-- Voucher Activation -->
-          <div class="alert alert-warning text-center">
-            <h6 class="fw-bold">Voucher Activation Pending</h6>
-            <p class="mb-0">
-              Your payment is confirmed. Contact us on WhatsApp to receive your
-              internet voucher.
-            </p>
+            <p class="small text-break mb-0">{{ order.reference }}</p>
           </div>
 
           <!-- Receipt Actions -->
@@ -112,4 +151,5 @@
     }
   }
 </style>
+
 {% endblock %}

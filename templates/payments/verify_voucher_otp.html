@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 shadow rounded-4">
+        <div class="card-body p-4 p-md-5 text-center">
+          <h3 class="fw-bold">Verify Your Email</h3>
+
+          <p class="text-muted">
+            We have sent a six-digit verification code to your email address.
+          </p>
+
+          {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-4 text-start">
+              <label class="form-label">Verification Code</label>
+              <input
+                type="text"
+                name="code"
+                class="form-control form-control-lg text-center"
+                placeholder="000000"
+                maxlength="6"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              Verify Code
+            </button>
+          </form>
+
+          <p class="small text-muted mt-4">
+            Your verification code expires after 10 minutes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

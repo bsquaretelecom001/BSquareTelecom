@@ -36,7 +36,8 @@ def initialize_payment(email, amount, reference):
         response.raise_for_status()
         return response.json()
 
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, ValueError) as e:
+        print(f"Paystack initialization error: {e}")
         return {
             "status": False,
             "message": "Unable to initialize payment with Paystack.",
@@ -59,7 +60,8 @@ def verify_payment(reference):
         response.raise_for_status()
         return response.json()
 
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, ValueError) as e:
+        print(f"Paystack verification error: {e}")
         return {
             "status": False,
             "message": "Unable to verify payment with Paystack.",

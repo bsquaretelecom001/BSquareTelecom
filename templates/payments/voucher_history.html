@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block content %}
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">My Internet Vouchers</h2>
+    <p class="text-muted">
+      View your B Square Telecom purchases and voucher codes.
+    </p>
+  </div>
+
+  {% if orders %}
+
+  <div class="row g-4">
+    {% for order in orders %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow rounded-4 h-100">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">{{ order.plan.name }}</h5>
+
+          <p class="text-muted small mb-3">
+            Purchased: {{ order.created_at|date:"M d, Y - h:i A" }}
+          </p>
+
+          <div class="mb-2">
+            <strong>Payment:</strong>
+            <span class="badge bg-success">{{ order.status }}</span>
+          </div>
+
+          <div class="mb-3">
+            <strong>Voucher:</strong>
+
+            {% if order.voucher_status == "Created" and order.voucher %}
+            <div class="alert alert-success mt-2 mb-0">
+              <small>Your internet access code:</small>
+              <h4 class="fw-bold mb-0">{{ order.voucher.voucher_code }}</h4>
+            </div>
+
+            {% elif order.voucher_status == "Failed" %}
+            <div class="alert alert-warning mt-2">
+              Voucher processing is pending. Please contact support.
+            </div>
+
+            {% else %}
+            <div class="alert alert-info mt-2">
+              Your voucher is being processed.
+            </div>
+            {% endif %}
+          </div>
+
+          <hr />
+
+          <small class="text-muted">
+            Order Reference:<br />
+            {{ order.reference }}
+          </small>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+
+  <div class="text-center py-5">
+    <h5>No purchases found</h5>
+    <p class="text-muted">
+      We couldn't find any paid purchases associated with this email.
+    </p>
+    <a href="{% url 'plans:list' %}" class="btn btn-primary">
+      View Internet Plans
+    </a>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
