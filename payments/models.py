@@ -88,3 +88,51 @@ class VoucherAccessOTP(models.Model):
 
     def __str__(self):
         return f"Voucher access OTP for {self.email}"
+
+
+class PaystackPaymentAttempt(models.Model):
+
+    STATUS_CHOICES = (
+        ("Pending", "Pending"),
+        ("Failed", "Failed"),
+        ("Paid", "Paid"),
+    )
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="payment_attempts",
+    )
+
+    reference = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    authorization_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        default="",
+    )
+
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="Pending",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return str(self.reference)

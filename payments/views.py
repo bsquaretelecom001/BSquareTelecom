@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.db import transaction
 
 from plans.models import InternetPlan
-from .models import Order
+from .models import Order, VoucherAccessOTP, PaystackPaymentAttempt
 from .paystack import initialize_payment, verify_payment
 from .tasks import generate_voucher_for_order
 
@@ -18,7 +18,6 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.utils import timezone
 
-from .models import Order, VoucherAccessOTP
 
 
 RECEIPT_SALT = "payments.guest.receipt"
@@ -98,19 +97,47 @@ def payment_page(request, order_id):
                     "customer_phone",
                 ]
             )
-            paystack_response = initialize_payment(
-                email=order.customer_email,
-                amount=order.amount,
-                reference=str(order.reference),
+            # Reuse an existing pending Paystack checkout if available.
+            payment_attempt = (
+                PaystackPaymentAttempt.objects
+                .filter(
+                    order=order,
+                    status="Pending",
+                )
+                .exclude(authorization_url="")
+                .order_by("-created_at")
+                .first()
             )
 
-            if (
-                paystack_response.get("status")
-                and paystack_response.get("data", {}).get("authorization_url")
-            ):
-                return redirect(
-                    paystack_response["data"]["authorization_url"]
-                )
+            if payment_attempt:
+                return redirect(payment_attempt.authorization_url)
+
+            # Create a fresh attempt if no active checkout exists.
+            payment_attempt = PaystackPaymentAttempt.objects.create(
+                order=order,
+                amount=order.amount,
+            )
+
+            paystack_response = initialize_payment(
+                email=order.customer_email,
+                amount=payment_attempt.amount,
+                reference=str(payment_attempt.reference),
+            )
+
+            authorization_url = (
+                paystack_response.get("data", {}).get("authorization_url")
+                if paystack_response.get("status")
+                else None
+            )
+
+            if authorization_url:
+                payment_attempt.authorization_url = authorization_url
+                payment_attempt.save(update_fields=["authorization_url"])
+
+                return redirect(authorization_url)
+
+            payment_attempt.status = "Failed"
+            payment_attempt.save(update_fields=["status"])
             whatsapp_message = (
                 "Hello B Square Telecom!\n\n"
                 "I have made a bank transfer for my internet plan.\n\n"
@@ -152,14 +179,32 @@ def verify(request):
     if not reference:
         return redirect("plans")
 
-    order = get_object_or_404(
-        Order.objects.select_related("plan"),
-        reference=reference,
+    # First, check whether this is a new payment attempt.
+    payment_attempt = (
+        PaystackPaymentAttempt.objects
+        .filter(reference=reference)
+        .select_related("order__plan")
+        .first()
     )
+
+    if payment_attempt:
+        order = payment_attempt.order
+        payment_reference = str(payment_attempt.reference)
+        expected_amount = int(payment_attempt.amount * 100)
+
+    else:
+        # Preserve compatibility with existing Telegram payments.
+        order = get_object_or_404(
+            Order.objects.select_related("plan"),
+            reference=reference,
+        )
+
+        payment_reference = str(order.reference)
+        expected_amount = int(order.amount * 100)
 
     # Verify the transaction directly with Paystack.
     try:
-        response = verify_payment(str(order.reference))
+        response = verify_payment(payment_reference)
 
     except Exception:
         return render(
@@ -181,7 +226,7 @@ def verify(request):
 
     if (
         payment_data.get("status") != "success"
-        or str(payment_data.get("reference")) != str(order.reference)
+        or str(payment_data.get("reference")) != payment_reference
     ):
         return render(
             request,
@@ -190,8 +235,6 @@ def verify(request):
         )
 
     # Verify the original amount requested from Paystack.
-    expected_amount = int(order.amount * 100)
-
     paid_requested_amount = int(
         payment_data.get("requested_amount")
         or payment_data.get("amount")
@@ -199,16 +242,6 @@ def verify(request):
     )
 
     if paid_requested_amount != expected_amount:
-        return render(
-            request,
-            "payments/failed.html",
-            {
-                "error": (
-                    "The payment amount could not be confirmed. "
-                    "Please contact support."
-                )
-            },
-        )
         return render(
             request,
             "payments/failed.html",
@@ -233,7 +266,7 @@ def verify(request):
             },
         )
 
-    # Mark the order as paid.
+    # Record successful payment and update the order safely.
     with transaction.atomic():
 
         order = (
@@ -242,6 +275,16 @@ def verify(request):
             .select_related("plan")
             .get(id=order.id)
         )
+
+        if payment_attempt:
+            payment_attempt = (
+                PaystackPaymentAttempt.objects
+                .select_for_update()
+                .get(id=payment_attempt.id)
+            )
+
+            payment_attempt.status = "Paid"
+            payment_attempt.save(update_fields=["status"])
 
         if order.status != "Paid":
 
@@ -258,11 +301,9 @@ def verify(request):
             )
 
     # Automatically allocate an imported Omada voucher.
-    # This also safely handles an already-paid order without
-    # issuing a second voucher.
+    # Existing protection against duplicate voucher generation is preserved.
     generate_voucher_for_order(order)
 
-    # Reload the order after voucher allocation.
     order.refresh_from_db()
 
     receipt_token = signing.dumps(
@@ -279,7 +320,6 @@ def verify(request):
         f"{receipt_path}?{urlencode({'token': receipt_token})}"
     )
 
-    # Check whether a voucher was successfully assigned.
     voucher = (
         Order.objects
         .filter(pk=order.pk)
