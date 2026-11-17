@@ -19,15 +19,23 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
-
-TELEGRAM_BOT_TOKEN = os.getenv("8862627544:AAGYJXH9uJsuWlJ3iaYVQmKPv5mTt4bSbiw")
+DEBUG = False
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     ".vercel.app",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://bsquaretelecom.vercel.app",
+    "https://*.vercel.app",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # -------------------------------------------------
 # APPS

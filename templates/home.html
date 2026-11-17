@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-{% load static %}
-{% block content %}
+{% extends "base.html" %} {% load static %} {% block content %}
 
 <!-- HERO -->
 
@@ -12,34 +10,31 @@
           🚀 Fast. Reliable. Affordable.
         </span>
 
-```
-    <h1 class="display-4 fw-bold mb-3">
-      Experience
-      <span class="text-primary">Unlimited Internet</span>
-      Without Limits.
-    </h1>
+        <h1 class="display-4 fw-bold mb-3">
+          Experience
+          <span class="text-primary">Unlimited Internet</span>
+          Without Limits.
+        </h1>
 
-    <p class="lead text-muted mb-3">
-      B Square Telecom delivers fast and reliable internet. Purchase your
-      plan online and get connected in minutes.
-    </p>
+        <p class="lead text-muted mb-3">
+          B Square Telecom delivers fast and reliable internet. Purchase your
+          plan online and get connected in minutes.
+        </p>
 
-    <a href="{% url 'plans' %}" class="btn btn-primary me-2">
-      🚀 Buy Internet Plan
-    </a>
-  </div>
+        <a href="{% url 'plans' %}" class="btn btn-primary me-2">
+          🚀 Buy Internet Plan
+        </a>
+      </div>
 
-  <div class="col-lg-6 text-center">
-    <img
-      src="{% static 'images/hero-network.svg' %}"
-      class="img-fluid home-hero-image"
-      alt="B Square Telecom"
-      loading="lazy"
-    />
-  </div>
-</div>
-```
-
+      <div class="col-lg-6 text-center">
+        <img
+          src="{% static 'images/hero-network.svg' %}"
+          class="img-fluid home-hero-image"
+          alt="B Square Telecom"
+          loading="lazy"
+        />
+      </div>
+    </div>
   </div>
 </section>
 
@@ -54,51 +49,50 @@
       </p>
     </div>
 
-<div class="row g-3">
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <h3>⚡</h3>
-        <h4 class="mt-2">High Speed</h4>
-        <p class="mb-0">
-          Enjoy uninterrupted high-speed internet for streaming, gaming,
-          and browsing.
-        </p>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h3>⚡</h3>
+            <h4 class="mt-2">High Speed</h4>
+            <p class="mb-0">
+              Enjoy uninterrupted high-speed internet for streaming, gaming, and
+              browsing.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h3>🔒</h3>
+            <h4 class="mt-2">Secure Network</h4>
+            <p class="mb-0">
+              Stable and secure connections for all your devices.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h3>💳</h3>
+            <h4 class="mt-2">Easy Payments</h4>
+            <p class="mb-0">
+              Buy internet plans online with Paystack in just a few clicks.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <h3>🔒</h3>
-        <h4 class="mt-2">Secure Network</h4>
-        <p class="mb-0">
-          Stable and secure connections for all your devices.
-        </p>
-      </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'plans' %}" class="btn btn-primary">
+        View Internet Plans
+      </a>
     </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <h3>💳</h3>
-        <h4 class="mt-2">Easy Payments</h4>
-        <p class="mb-0">
-          Buy internet plans online with Paystack in just a few clicks.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="text-center mt-4">
-  <a href="{% url 'plans' %}" class="btn btn-primary">
-    View Internet Plans
-  </a>
-</div>
-
   </div>
 </section>
 

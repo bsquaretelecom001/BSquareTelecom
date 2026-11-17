@@ -56,3 +56,10 @@ def terms_and_conditions(request):
 # REFUND POLICY
 def refund_policy(request):
     return render(request, "policies/refund_policy.html")
+
+def csrf_failure(request, reason=""):
+    return render(
+        request,
+        "403_csrf.html",
+        status=403,
+    )
