@@ -2,48 +2,68 @@
 
 <div class="container py-5">
   <div class="text-center mb-5">
-    <h1>Coverage Areas</h1>
-    <p class="lead">B Square Telecom is expanding across Nigeria.</p>
+    <h1 class="fw-bold">Our Coverage Areas</h1>
+    <p class="lead text-muted">
+      Find B Square Telecom internet services in your location.
+    </p>
   </div>
 
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card shadow h-100">
-        <div class="card-body">
-          <h4>🟢 Available</h4>
-          <ul>
-            <li>University Hostels</li>
-            <li>Student Lodges</li>
-            <li>Private Apartments</li>
-          </ul>
+  <div class="row g-4">
+    <!-- AVAILABLE LOCATIONS -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body p-4">
+          <h4 class="text-success mb-4">🟢 Currently Available</h4>
+
+          {% for area in coverage_areas %} {% if area.status == "available" %}
+          <div class="border-bottom py-3">
+            <h5 class="mb-1">{{ area.name }}</h5>
+
+            {% if area.location %}
+            <p class="text-muted mb-1">📍 {{ area.location }}</p>
+            {% endif %} {% if area.description %}
+            <p class="mb-0">{{ area.description }}</p>
+            {% endif %}
+          </div>
+          {% endif %} {% empty %}
+          <p class="text-muted">Coverage locations will be announced soon.</p>
+          {% endfor %}
         </div>
       </div>
     </div>
 
-    <div class="col-md-4 mb-4">
-      <div class="card shadow h-100">
-        <div class="card-body">
-          <h4>🟡 Coming Soon</h4>
-          <ul>
-            <li>Neighbouring Communities</li>
-            <li>Business Centres</li>
-            <li>Hotels</li>
-          </ul>
+    <!-- COMING SOON -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body p-4">
+          <h4 class="text-warning mb-4">🟡 Coming Soon</h4>
+
+          {% for area in coverage_areas %} {% if area.status == "coming_soon" %}
+          <div class="border-bottom py-3">
+            <h5 class="mb-1">{{ area.name }}</h5>
+
+            {% if area.location %}
+            <p class="text-muted mb-1">📍 {{ area.location }}</p>
+            {% endif %} {% if area.description %}
+            <p class="mb-0">{{ area.description }}</p>
+            {% endif %}
+          </div>
+          {% endif %} {% empty %}
+          <p class="text-muted">New coverage locations coming soon.</p>
+          {% endfor %}
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="col-md-4 mb-4">
-      <div class="card shadow h-100">
-        <div class="card-body">
-          <h4>📞 Need Coverage?</h4>
+  <div class="text-center mt-5">
+    <h5>Need B Square Telecom in your location?</h5>
 
-          <p>Contact us if your lodge or area is not yet covered.</p>
+    <p class="text-muted">
+      Contact us if your lodge or area is not yet covered.
+    </p>
 
-          <a href="/contact/" class="btn btn-primary"> Contact Us </a>
-        </div>
-      </div>
-    </div>
+    <a href="/contact/" class="btn btn-primary px-4"> Contact Us </a>
   </div>
 </div>
 

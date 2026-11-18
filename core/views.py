@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.conf import settings
 
-from .models import ContactInfo
+from .models import ContactInfo, CoverageArea
 
 
 def home(request):
@@ -11,7 +11,17 @@ def home(request):
 
 
 def coverage(request):
-    return render(request, "coverage.html")
+    coverage_areas = CoverageArea.objects.filter(
+        is_active=True
+    )
+
+    return render(
+        request,
+        "coverage.html",
+        {
+            "coverage_areas": coverage_areas,
+        },
+    )
 
 
 def contact(request):
